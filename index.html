@@ -52,6 +52,25 @@
             #sidebar.sidebar-collapsed .nav-item i { margin: 0; }
         }
     </style>
+
+<style id="admin-mobile-bottom-navigation-styles">
+/* Mobile/tablet bottom navigation. Desktop retains its collapsible sidebar. */
+#admin-mobile-bottom-nav{display:none}
+@media(max-width:1023px){
+  #admin-mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:stretch;justify-content:space-around;gap:3px;padding:7px 7px calc(7px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.97);border-top:1px solid #e2e8f0;box-shadow:0 -8px 28px rgba(15,23,42,.12);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  #admin-mobile-bottom-nav .mobile-bottom-item{min-width:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 2px 5px;border:0;border-radius:13px;background:transparent;color:#64748b;font-size:10px;font-weight:700;line-height:1.15;text-align:center;white-space:nowrap;transition:background .15s,color .15s}
+  #admin-mobile-bottom-nav .mobile-bottom-item i{font-size:19px;line-height:1.15}
+  #admin-mobile-bottom-nav .mobile-bottom-item.is-active{color:#0d9488;background:#ccfbf1}
+  #admin-mobile-bottom-nav .mobile-bottom-item:focus-visible{outline:2px solid #0d9488;outline-offset:2px}
+  #admin-mobile-bottom-nav .mobile-bottom-item:active{transform:scale(.97)}
+  #admin-mobile-bottom-nav .mobile-bottom-label{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  main{padding-bottom:calc(6.25rem + env(safe-area-inset-bottom,0px))!important;scroll-padding-bottom:calc(6.25rem + env(safe-area-inset-bottom,0px))}
+  #toastContainer{bottom:calc(5.75rem + env(safe-area-inset-bottom,0px));top:auto!important;right:.75rem!important;left:.75rem!important}
+}
+@media(max-width:360px){#admin-mobile-bottom-nav .mobile-bottom-item{font-size:9px;padding-left:0;padding-right:0}#admin-mobile-bottom-nav .mobile-bottom-item i{font-size:18px}}
+@media(prefers-reduced-motion:reduce){#admin-mobile-bottom-nav .mobile-bottom-item{transition:none}}
+</style>
+
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden">
 
@@ -1237,6 +1256,15 @@
             document.getElementById('sidebar-backdrop').classList.add('hidden');
         }
 
+
+function openMobileMoreMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (window.innerWidth >= 1024) return;
+    if (sidebar && sidebar.classList.contains('-translate-x-full')) toggleMobileSidebar();
+    if (backdrop) backdrop.setAttribute('aria-label', 'Close navigation menu');
+}
+
         function handleNavClick(sectionId) {
             switchTab(sectionId);
             if (window.innerWidth < 1024) {
@@ -1291,6 +1319,18 @@
             }
             const breadcrumbHome = document.querySelector('[data-breadcrumb-home]');
             if (breadcrumbHome) breadcrumbHome.textContent = document.body.classList.contains('bn-language') ? 'হোম' : 'Home';
+            // Sync the mobile bottom bar with the same tab used by the desktop sidebar.
+            const bottomNav = document.getElementById('admin-mobile-bottom-nav');
+            if (bottomNav) {
+                const primaryTabs = ['dashboard', 'patients', 'appointments', 'billing'];
+                const selected = primaryTabs.includes(tabId) ? tabId : 'more';
+                bottomNav.querySelectorAll('[data-tab]').forEach(button => {
+                    const isActive = button.dataset.tab === selected;
+                    button.classList.toggle('is-active', isActive);
+                    if (isActive) button.setAttribute('aria-current', 'page');
+                    else button.removeAttribute('aria-current');
+                });
+            }
         }
 
         // MODAL TOGGLES
@@ -1985,7 +2025,7 @@
     <script id="msi-bilingual-theme-engine">
     (function(){
       const translations = {
-        'Dashboard':'ড্যাশবোর্ড','Dashboard Overview':'ড্যাশবোর্ডের সারসংক্ষেপ','Patients':'রোগী','Appointments':'অ্যাপয়েন্টমেন্ট','Tests & Lab Work':'পরীক্ষা ও ল্যাব কার্যক্রম','Reports & Delivery':'রিপোর্ট ও সরবরাহ','Billing & Invoices':'বিলিং ও ইনভয়েস','Reagents & Inventory':'রিএজেন্ট ও মজুত','Analytics & Reports':'বিশ্লেষণ ও রিপোর্ট','Roles & Permissions':'ভূমিকা ও অনুমতি','Center Settings':'সেন্টার সেটিংস','Diagnostic Centre':'ডায়াগনস্টিক সেন্টার','New Patient':'নতুন রোগী','Appointment':'অ্যাপয়েন্টমেন্ট','Quick Bill':'দ্রুত বিল','Today\'s Patients':'আজকের রোগী','Pending Test Reports':'অপেক্ষমাণ পরীক্ষার রিপোর্ট','Tests Completed':'সম্পন্ন পরীক্ষা','Today\'s Revenue':'আজকের আয়','View Directory':'রোগীর তালিকা দেখুন','Process Reports':'রিপোর্ট প্রক্রিয়া করুন','Lab Workstation':'ল্যাব ওয়ার্কস্টেশন','Medical Director':'মেডিকেল পরিচালক','Email / Username *':'ইমেইল / ব্যবহারকারীর নাম *','Assign Role *':'ভূমিকা নির্ধারণ *','Temporary Password *':'অস্থায়ী পাসওয়ার্ড *','Cancel':'বাতিল','Create Account':'অ্যাকাউন্ট তৈরি করুন','Search':'অনুসন্ধান','Search patients...':'রোগী খুঁজুন...','Name':'নাম','Patient Name':'রোগীর নাম','Age':'বয়স','Gender':'লিঙ্গ','Phone':'ফোন','Date':'তারিখ','Status':'অবস্থা','Actions':'কার্যক্রম','Action':'কার্যক্রম','Save':'সংরক্ষণ','Save Changes':'পরিবর্তন সংরক্ষণ','Update':'আপডেট','Edit':'সম্পাদনা','Delete':'মুছুন','View':'দেখুন','Add':'যোগ করুন','Add Patient':'রোগী যোগ করুন','Patient ID':'রোগী আইডি','Test':'পরীক্ষা','Tests':'পরীক্ষাসমূহ','Department':'বিভাগ','Price':'মূল্য','Total':'মোট','Subtotal':'উপমোট','Discount':'ছাড়','Net Amount':'নিট পরিমাণ','Payment Method':'পেমেন্ট পদ্ধতি','Cash':'নগদ','Paid':'পরিশোধিত','Pending':'অপেক্ষমাণ','Completed':'সম্পন্ন','Approved':'অনুমোদিত','Scheduled':'নির্ধারিত','In Progress':'চলমান','Settings':'সেটিংস','Logout':'লগআউট','Login':'লগইন','Welcome':'স্বাগতম','Dashboard Overview':'ড্যাশবোর্ডের সারসংক্ষেপ','Overview':'সারসংক্ষেপ','Quick Actions':'দ্রুত কার্যক্রম','Recent Activity':'সাম্প্রতিক কার্যক্রম','Patient Details':'রোগীর বিবরণ','Appointment Details':'অ্যাপয়েন্টমেন্টের বিবরণ','Test Catalogue':'পরীক্ষার তালিকা','Reports':'রিপোর্ট','Inventory':'মজুত','Revenue':'আয়','Total Patients':'মোট রোগী','This Month':'এই মাস','This Week':'এই সপ্তাহ','Today':'আজ','All':'সব','Filter':'ফিল্টার','Export':'এক্সপোর্ট','Print':'প্রিন্ট','Download':'ডাউনলোড','Close':'বন্ধ করুন','Submit':'জমা দিন','Confirm':'নিশ্চিত করুন','Reset':'রিসেট','Refresh':'রিফ্রেশ','No data available':'কোনো তথ্য নেই','Select':'নির্বাচন করুন','Select Date':'তারিখ নির্বাচন করুন','Notes':'নোট','Address':'ঠিকানা','Email':'ইমেইল','Username':'ব্যবহারকারীর নাম','Password':'পাসওয়ার্ড','Role':'ভূমিকা','Branch':'শাখা','Quantity':'পরিমাণ','Category':'ক্যাটাগরি','Description':'বিবরণ','Reference':'রেফারেন্স','Invoice':'ইনভয়েস','Invoice Number':'ইনভয়েস নম্বর','Payment':'পেমেন্ট','Patient':'রোগী','Doctor':'চিকিৎসক','Test Name':'পরীক্ষার নাম','Report Status':'রিপোর্টের অবস্থা','Results':'ফলাফল','Remarks':'মন্তব্য','Normal':'স্বাভাবিক','Female':'নারী','Male':'পুরুষ','Other':'অন্যান্য','New':'নতুন','Available':'উপলব্ধ','Low Stock':'স্বল্প মজুত','Adequate':'পর্যাপ্ত','Expired':'মেয়াদোত্তীর্ণ','Reagents & Chemicals':'রিএজেন্ট ও রাসায়নিক','Specimen Tubes & Vials':'নমুনা সংগ্রহের টিউব ও ভায়াল','Hematology':'হেমাটোলজি','Biochemistry':'বায়োকেমিস্ট্রি','Serology / Virology':'সেরোলজি / ভাইরোলজি','Endocrinology':'এন্ডোক্রাইনোলজি','Radiology & Imaging':'রেডিওলজি ও ইমেজিং','Language':'ভাষা','Theme':'থিম','Texture':'টেক্সচার','Light':'লাইট','Dark':'ডার্ক','None':'কোনোটি নয়','Grid':'গ্রিড','Dots':'ডটস'
+        'Dashboard':'ড্যাশবোর্ড','More':'আরও','Billing':'বিলিং','Dashboard Overview':'ড্যাশবোর্ডের সারসংক্ষেপ','Patients':'রোগী','Appointments':'অ্যাপয়েন্টমেন্ট','Tests & Lab Work':'পরীক্ষা ও ল্যাব কার্যক্রম','Reports & Delivery':'রিপোর্ট ও সরবরাহ','Billing & Invoices':'বিলিং ও ইনভয়েস','Reagents & Inventory':'রিএজেন্ট ও মজুত','Analytics & Reports':'বিশ্লেষণ ও রিপোর্ট','Roles & Permissions':'ভূমিকা ও অনুমতি','Center Settings':'সেন্টার সেটিংস','Diagnostic Centre':'ডায়াগনস্টিক সেন্টার','New Patient':'নতুন রোগী','Appointment':'অ্যাপয়েন্টমেন্ট','Quick Bill':'দ্রুত বিল','Today\'s Patients':'আজকের রোগী','Pending Test Reports':'অপেক্ষমাণ পরীক্ষার রিপোর্ট','Tests Completed':'সম্পন্ন পরীক্ষা','Today\'s Revenue':'আজকের আয়','View Directory':'রোগীর তালিকা দেখুন','Process Reports':'রিপোর্ট প্রক্রিয়া করুন','Lab Workstation':'ল্যাব ওয়ার্কস্টেশন','Medical Director':'মেডিকেল পরিচালক','Email / Username *':'ইমেইল / ব্যবহারকারীর নাম *','Assign Role *':'ভূমিকা নির্ধারণ *','Temporary Password *':'অস্থায়ী পাসওয়ার্ড *','Cancel':'বাতিল','Create Account':'অ্যাকাউন্ট তৈরি করুন','Search':'অনুসন্ধান','Search patients...':'রোগী খুঁজুন...','Name':'নাম','Patient Name':'রোগীর নাম','Age':'বয়স','Gender':'লিঙ্গ','Phone':'ফোন','Date':'তারিখ','Status':'অবস্থা','Actions':'কার্যক্রম','Action':'কার্যক্রম','Save':'সংরক্ষণ','Save Changes':'পরিবর্তন সংরক্ষণ','Update':'আপডেট','Edit':'সম্পাদনা','Delete':'মুছুন','View':'দেখুন','Add':'যোগ করুন','Add Patient':'রোগী যোগ করুন','Patient ID':'রোগী আইডি','Test':'পরীক্ষা','Tests':'পরীক্ষাসমূহ','Department':'বিভাগ','Price':'মূল্য','Total':'মোট','Subtotal':'উপমোট','Discount':'ছাড়','Net Amount':'নিট পরিমাণ','Payment Method':'পেমেন্ট পদ্ধতি','Cash':'নগদ','Paid':'পরিশোধিত','Pending':'অপেক্ষমাণ','Completed':'সম্পন্ন','Approved':'অনুমোদিত','Scheduled':'নির্ধারিত','In Progress':'চলমান','Settings':'সেটিংস','Logout':'লগআউট','Login':'লগইন','Welcome':'স্বাগতম','Dashboard Overview':'ড্যাশবোর্ডের সারসংক্ষেপ','Overview':'সারসংক্ষেপ','Quick Actions':'দ্রুত কার্যক্রম','Recent Activity':'সাম্প্রতিক কার্যক্রম','Patient Details':'রোগীর বিবরণ','Appointment Details':'অ্যাপয়েন্টমেন্টের বিবরণ','Test Catalogue':'পরীক্ষার তালিকা','Reports':'রিপোর্ট','Inventory':'মজুত','Revenue':'আয়','Total Patients':'মোট রোগী','This Month':'এই মাস','This Week':'এই সপ্তাহ','Today':'আজ','All':'সব','Filter':'ফিল্টার','Export':'এক্সপোর্ট','Print':'প্রিন্ট','Download':'ডাউনলোড','Close':'বন্ধ করুন','Submit':'জমা দিন','Confirm':'নিশ্চিত করুন','Reset':'রিসেট','Refresh':'রিফ্রেশ','No data available':'কোনো তথ্য নেই','Select':'নির্বাচন করুন','Select Date':'তারিখ নির্বাচন করুন','Notes':'নোট','Address':'ঠিকানা','Email':'ইমেইল','Username':'ব্যবহারকারীর নাম','Password':'পাসওয়ার্ড','Role':'ভূমিকা','Branch':'শাখা','Quantity':'পরিমাণ','Category':'ক্যাটাগরি','Description':'বিবরণ','Reference':'রেফারেন্স','Invoice':'ইনভয়েস','Invoice Number':'ইনভয়েস নম্বর','Payment':'পেমেন্ট','Patient':'রোগী','Doctor':'চিকিৎসক','Test Name':'পরীক্ষার নাম','Report Status':'রিপোর্টের অবস্থা','Results':'ফলাফল','Remarks':'মন্তব্য','Normal':'স্বাভাবিক','Female':'নারী','Male':'পুরুষ','Other':'অন্যান্য','New':'নতুন','Available':'উপলব্ধ','Low Stock':'স্বল্প মজুত','Adequate':'পর্যাপ্ত','Expired':'মেয়াদোত্তীর্ণ','Reagents & Chemicals':'রিএজেন্ট ও রাসায়নিক','Specimen Tubes & Vials':'নমুনা সংগ্রহের টিউব ও ভায়াল','Hematology':'হেমাটোলজি','Biochemistry':'বায়োকেমিস্ট্রি','Serology / Virology':'সেরোলজি / ভাইরোলজি','Endocrinology':'এন্ডোক্রাইনোলজি','Radiology & Imaging':'রেডিওলজি ও ইমেজিং','Language':'ভাষা','Theme':'থিম','Texture':'টেক্সচার','Light':'লাইট','Dark':'ডার্ক','None':'কোনোটি নয়','Grid':'গ্রিড','Dots':'ডটস'
       };
       const originals = new WeakMap();
       let language = localStorage.getItem('msi-language') || 'EN';
@@ -2049,5 +2089,97 @@
         }, 0);
       });
     </script>
+
+<style id="mobile-responsive-enhancements">
+/* Responsive refinements for the staff/admin portal. No data, navigation destinations, or workflows are changed. */
+html, body { max-width: 100%; }
+#sidebar { overscroll-behavior: contain; }
+#sidebar nav { min-height: 0; -webkit-overflow-scrolling: touch; }
+main { min-width: 0; }
+main .tab-view, main .tab-view > *, main .grid > *, main .flex > * { min-width: 0; }
+main .overflow-x-auto { max-width: 100%; -webkit-overflow-scrolling: touch; }
+#msi-preferences { align-items: center; flex-wrap: wrap; }
+#msi-palette-panel { max-width: calc(100vw - 20px); max-height: min(80dvh, 560px); overflow-y: auto; }
+@media (max-width: 1023px) {
+  body { height: 100dvh; min-height: 100dvh; }
+  #sidebar { width: min(84vw, 18rem); max-width: 320px; height: 100dvh; }
+  .h-screen { height: 100dvh; }
+  .flex-1.flex.flex-col.h-screen.overflow-hidden.min-w-0 { min-width: 0; width: 100%; }
+  #sidebar-backdrop { touch-action: manipulation; }
+}
+@media (max-width: 767px) {
+  header { flex-wrap: wrap; gap: .55rem; padding: .65rem .75rem !important; }
+  header > div:first-child { flex: 1 1 100%; min-width: 0; gap: .5rem; }
+  header #page-title { min-width: 0; font-size: clamp(.9rem, 3.2vw, 1.125rem); line-height: 1.25; overflow-wrap: anywhere; }
+  header > div:last-child { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .35rem; min-width: 0; }
+  header > div:last-child > :not([hidden]) ~ :not([hidden]) { margin-left: 0 !important; }
+  header > div:last-child > button, header > div:last-child > a { min-height: 38px; }
+  #workflow-breadcrumb { padding-left: .75rem !important; padding-right: .75rem !important; flex-wrap: wrap; overflow-wrap: anywhere; }
+  main.p-4 { padding: .75rem !important; }
+  main .tab-view { width: 100%; }
+  main .grid.grid-cols-2 { grid-template-columns: minmax(0, 1fr); }
+  main .flex.justify-between { flex-wrap: wrap; gap: .75rem; }
+  main .overflow-x-auto { overflow-x: auto; }
+  main table { min-width: 520px; }
+  [id$="Modal"] { padding: .5rem !important; overflow-y: auto; overscroll-behavior: contain; }
+  [id$="Modal"] > div { width: 100%; max-width: 100%; max-height: calc(100dvh - 1rem); overflow-y: auto; }
+  #printableArea { padding: .75rem !important; }
+  #printableArea table { display: block; max-width: 100%; overflow-x: auto; }
+  #printableArea h1 { font-size: 1.1rem; overflow-wrap: anywhere; }
+  #msi-preferences { gap: .25rem; }
+  #msi-preferences [data-lang], #msi-theme-button { min-height: 36px; }
+  #msi-palette-panel { position: fixed; top: auto; right: 10px; bottom: max(10px, env(safe-area-inset-bottom)); left: 10px; width: auto; max-width: none; max-height: 72dvh; overflow-y: auto; }
+  .msi-palette-options, #msi-palette-panel .msi-palette-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  input, select, textarea { max-width: 100%; }
+  canvas { max-width: 100%; }
+}
+@media (max-width: 420px) {
+  header > div:last-child { justify-content: flex-start; }
+  header > div:last-child > button, header > div:last-child > a { padding-left: .55rem !important; padding-right: .55rem !important; }
+  #msi-palette-panel .msi-palette-choice { font-size: 10px !important; padding: 8px !important; }
+  #printableArea .grid.grid-cols-2 { grid-template-columns: minmax(0, 1fr); }
+  #printableArea .flex.justify-between { flex-wrap: wrap; gap: 1rem; }
+  [id$="Modal"] .p-6 { padding: .9rem !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+</style>
+<script id="responsive-admin-navigation-fix">
+(function () {
+  function closeSidebarOnEscape(event) {
+    if (event.key === 'Escape' && window.innerWidth < 1024) {
+      if (typeof window.closeMobileSidebar === 'function') window.closeMobileSidebar();
+    }
+  }
+  function normalizeSidebarForViewport() {
+    if (window.innerWidth >= 1024 && typeof window.closeMobileSidebar === 'function') {
+      window.closeMobileSidebar();
+    }
+  }
+  document.addEventListener('keydown', closeSidebarOnEscape);
+  window.addEventListener('resize', normalizeSidebarForViewport, { passive: true });
+})();
+</script>
+
+
+<nav id="admin-mobile-bottom-nav" aria-label="Mobile primary navigation">
+  <button type="button" class="mobile-bottom-item is-active" data-tab="dashboard" onclick="handleNavClick('dashboard')" aria-current="page">
+    <i class="fas fa-chart-pie" aria-hidden="true"></i><span class="mobile-bottom-label">Dashboard</span>
+  </button>
+  <button type="button" class="mobile-bottom-item" data-tab="patients" onclick="handleNavClick('patients')">
+    <i class="fas fa-user-injured" aria-hidden="true"></i><span class="mobile-bottom-label">Patients</span>
+  </button>
+  <button type="button" class="mobile-bottom-item" data-tab="appointments" onclick="handleNavClick('appointments')">
+    <i class="fas fa-calendar-check" aria-hidden="true"></i><span class="mobile-bottom-label">Appointments</span>
+  </button>
+  <button type="button" class="mobile-bottom-item" data-tab="billing" onclick="handleNavClick('billing')">
+    <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i><span class="mobile-bottom-label">Billing</span>
+  </button>
+  <button type="button" class="mobile-bottom-item" data-tab="more" onclick="openMobileMoreMenu()" aria-label="More sections">
+    <i class="fas fa-ellipsis" aria-hidden="true"></i><span class="mobile-bottom-label">More</span>
+  </button>
+</nav>
+
 </body>
 </html>
