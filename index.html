@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ash Shifa Diagnostic Centre - Complete Management Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        teal: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @media (min-width: 1024px) {
+            #sidebar { width: 16rem; transition: width .25s ease; }
+            #sidebar.sidebar-collapsed { width: 4.5rem; }
+            #sidebar.sidebar-collapsed .sidebar-brand-text,
+            #sidebar.sidebar-collapsed .sidebar-link-label,
+            #sidebar.sidebar-collapsed .sidebar-user-text,
+            #sidebar.sidebar-collapsed .sidebar-user-settings { display: none; }
+            #sidebar.sidebar-collapsed .sidebar-brand-row,
+            #sidebar.sidebar-collapsed .sidebar-user-row { justify-content: center; }
+            #sidebar.sidebar-collapsed .sidebar-nav { padding-left: .5rem; padding-right: .5rem; }
+            #sidebar.sidebar-collapsed .nav-item { justify-content: center; padding-left: .5rem; padding-right: .5rem; }
+            #sidebar.sidebar-collapsed .nav-item i { margin: 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" onclick="closeMobileSidebar()" class="fixed inset-0 bg-slate-900/50 z-20 hidden lg:hidden transition-opacity duration-300"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-30 w-64 bg-slate-900 text-slate-300 flex flex-col transition-transform duration-300 transform -translate-x-full lg:translate-x-0 shrink-0">
+        <!-- Logo & Header -->
+        <div class="sidebar-brand-row p-4 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-xl border border-teal-500/30">
+                    <i class="fas fill-current fa-notes-medical"></i>
+                </div>
+                <div class="sidebar-brand-text">
+                    <h1 class="font-bold text-white text-base leading-tight">Ash Shifa</h1>
+                    <p class="text-xs text-slate-400 font-medium">Diagnostic Centre</p>
+                </div>
+            </div>
+            <!-- Desktop collapse / expand button -->
+            <button id="sidebar-collapse-toggle" onclick="toggleDesktopSidebar()" class="hidden lg:flex text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800" title="Collapse sidebar" aria-label="Collapse sidebar" aria-expanded="true">
+                <i id="sidebar-collapse-icon" class="fas fa-angles-left"></i>
+            </button>
+            <!-- Close button for mobile only -->
+            <button onclick="closeMobileSidebar()" class="lg:hidden text-slate-400 hover:text-white p-1 rounded-lg">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+            <a href="#" onclick="handleNavClick('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all text-teal-400 bg-slate-800/80">
+                <i class="fas fa-chart-pie w-5 text-center text-base"></i>
+                <span class="sidebar-link-label">Dashboard</span>
+            </a>
+            <a href="#" onclick="handleNavClick('patients')" id="nav-patients" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all hover:bg-slate-800 hover:text-white">
+                <i class="fas fa-user-injured w-5 text-center text-base"></i>
+                <span class="sidebar-link-label">Patients</span>
+            </a>
+            <a href="#" onclick="handleNavClick('appointments')" id="nav-appointments" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all hover:bg-slate-800 hover:text-white">
+                <i class="fas fa-calendar-check w-5 text-center text-base"></i>
+                <span class="sidebar-link-label">Appointments</span>
+            </a>
+            <a href="#" onclick="handleNavClick('tests')" id="nav-tests" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all hover:bg-slate-800 hover:text-white">
+                <i class="fas fa-vials w-5 text-center text-base"></i>
+                <span class="sidebar-link-label">Tests & Lab Work</span>
+            </a>
+            <a href="#" onclick="handleNavClick('reports')" id="nav-reports" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all hover:bg-slate-800 hover:text-white">
+                <i class="fas fa-file-medical-alt w-5 text-center text-base"></i>
+                <span class="sidebar-link-label">Reports & Delivery</span>
+            </a>
+            <a href="#" onclick="handleNavClick('billing')" id="nav-billing" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all hover:bg-slate-800 hover:text-white">
+                <i class="fas fa-file-invoice-dollar w-5 text-center text-base"></i>
+                <span class="sidebar-link-label">Billing & Invoices</span>
+            </a>
+            <a href="#" onclick="handleNavClick('inventory')" id="nav-inventory" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all hover:bg-slate-800 hover:text-white">
+                <i class="fas fa-boxes w-5 text-center text-base"></i>
+                <span class="sidebar-link-label">Reagents & Inventory</span>
+            </a>
+            <a href="#" onclick="handleNavClick('analytics')" id="nav-analytics" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all hover:bg-slate-800 hover:text-white">
+                <i class="fas fa-chart-line w-5 text-center text-base"></i>
+                <span class="sidebar-link-label">Analytics & Reports</span>
+            </a>
+            <a href="#" onclick="handleNavClick('roles')" id="nav-roles" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all hover:bg-slate-800 hover:text-white">
+                <i class="fas fa-user-shield w-5 text-center text-base"></i>
+                <span class="sidebar-link-label">Roles & Permissions</span>
+            </a>
+            <a href="#" onclick="handleNavClick('settings')" id="nav-settings" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all hover:bg-slate-800 hover:text-white">
+                <i class="fas fa-cog w-5 text-center text-base"></i>
+                <span class="sidebar-link-label">Center Settings</span>
+            </a>
+        </nav>
+
+        <!-- User / Branch Info -->
+        <div class="sidebar-user-row p-3 border-t border-slate-800 bg-slate-950/50 flex items-center justify-between">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                    AK
+                </div>
+                <div class="sidebar-user-text truncate">
+                    <p class="text-xs font-semibold text-white truncate" id="currentUserName">Dr. Ahmed Khan</p>
+                    <p class="text-[11px] text-slate-400 truncate" id="currentUserRole">Medical Director</p>
+                </div>
+            </div>
+            <button onclick="switchTab('settings')" class="sidebar-user-settings text-slate-400 hover:text-teal-400 p-2 rounded-lg transition-colors" title="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
+        <!-- Top Navigation / Header -->
+        <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0 shadow-sm sticky top-0 z-20">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <h2 id="page-title" class="text-lg lg:text-xl font-bold text-slate-800">Dashboard Overview</h2>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <!-- Clock -->
+                <div class="hidden md:flex flex-col text-right border-r border-slate-200 pr-3">
+                    <span id="liveTime" class="text-xs font-bold text-slate-800">10:30:45 AM</span>
+                    <span id="liveDate" class="text-[11px] text-slate-500 font-medium">Sunday, 25 Oct 2026</span>
+                </div>
+
+                <!-- Action Quick Buttons -->
+                <button onclick="openModal('patientModal')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1.5 shadow-sm transition">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span class="hidden sm:inline">New Patient</span>
+                </button>
+
+                <button onclick="openModal('appointmentModal')" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1.5 shadow-sm transition">
+                    <i class="fa-solid fa-calendar-plus"></i>
+                    <span class="hidden sm:inline">Appointment</span>
+                </button>
+
+                <button onclick="openModal('quickBillingModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1.5 shadow-sm transition">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span class="hidden sm:inline">Quick Bill</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Breadcrumb navigation -->
+        <nav id="workflow-breadcrumb" aria-label="Breadcrumb" class="px-5 lg:px-8 py-2 bg-white border-b border-slate-100 text-xs text-slate-500 flex items-center gap-2" style="min-height:36px">
+            <button type="button" onclick="handleNavClick('dashboard')" class="hover:text-teal-700 font-semibold" data-breadcrumb-home>Home</button>
+            <i class="fas fa-chevron-right text-[9px] text-slate-400" aria-hidden="true"></i>
+            <span id="breadcrumb-current" class="font-bold text-slate-700" aria-current="page">Dashboard Overview</span>
+        </nav>
+
+        <!-- Dynamic Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50 relative">
+
+            <!-- Notification Toast Container -->
+            <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+            <!-- TAB 1: OVERVIEW DASHBOARD -->
+            <div id="view-dashboard" class="tab-view space-y-6">
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Today's Patients</p>
+                            <h3 class="text-3xl font-black text-slate-800 mt-2" id="statTodayPatients">48</h3>
+                            <a href="#" onclick="switchTab('patients')" class="text-xs text-teal-600 font-semibold mt-2 inline-block hover:underline"><i class="fa-solid fa-arrow-right mr-1"></i> View Directory</a>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-600 text-xl font-bold">
+                            <i class="fa-solid fa-hospital-user"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Pending Test Reports</p>
+                            <h3 class="text-3xl font-black text-slate-800 mt-2" id="statPendingReports">3</h3>
+                            <a href="#" onclick="switchTab('reports')" class="text-xs text-amber-600 font-semibold mt-2 inline-block hover:underline"><i class="fa-solid fa-clock mr-1"></i> Process Reports</a>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 text-xl font-bold">
+                            <i class="fa-solid fa-flask-vial"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Tests Completed</p>
+                            <h3 class="text-3xl font-black text-slate-800 mt-2" id="statCompletedTests">32</h3>
+                            <a href="#" onclick="switchTab('tests')" class="text-xs text-emerald-600 font-semibold mt-2 inline-block hover:underline"><i class="fa-solid fa-square-check mr-1"></i> Lab Workstation</a>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 text-xl font-bold">
+                            <i class="fa-solid fa-square-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Today's Revenue</p>
+                            <h3 class="text-3xl font-black text-slate-800 mt-2" id="statTotalRevenue">৳14,300</h3>
+                            <a href="#" onclick="switchTab('billing')" class="text-xs text-indigo-600 font-semibold mt-2 inline-block hover:underline"><i class="fa-solid fa-file-invoice-dollar mr-1"></i> Billing Ledger</a>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xl font-bold">
+                            <i class="fa-solid fa-bangladeshi-taka-sign"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample Lifecycle Pipeline -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base">Sample Processing Lifecycle</h3>
+                            <p class="text-xs text-slate-500">Real-time tracking of diagnostic test samples</p>
+                        </div>
+                        <a href="#" onclick="switchTab('tests')" class="text-xs font-bold bg-teal-50 text-teal-700 hover:bg-teal-100 px-3 py-1 rounded-full border border-teal-200 transition">Open Lab Workstation →</a>
+                    </div>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500 text-white font-bold flex items-center justify-center text-lg shadow-sm" id="stageCollected">18</div>
+                            <div>
+                                <p class="text-[10px] text-slate-500 uppercase font-bold">Stage 1</p>
+                                <p class="text-sm font-bold text-slate-800">Sample Collected</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white font-bold flex items-center justify-center text-lg shadow-sm" id="stageProcessing">8</div>
+                            <div>
+                                <p class="text-[10px] text-slate-500 uppercase font-bold">Stage 2</p>
+                                <p class="text-sm font-bold text-slate-800">Lab Analysis</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500 text-white font-bold flex items-center justify-center text-lg shadow-sm" id="stageApproved">14</div>
+                            <div>
+                                <p class="text-[10px] text-slate-500 uppercase font-bold">Stage 3</p>
+                                <p class="text-sm font-bold text-slate-800">Report Verified</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white font-bold flex items-center justify-center text-lg shadow-sm" id="stageDelivered">32</div>
+                            <div>
+                                <p class="text-[10px] text-slate-500 uppercase font-bold">Stage 4</p>
+                                <p class="text-sm font-bold text-slate-800">Delivered</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Critical Alerts & Recent Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-base">Weekly Diagnostic Volume</h3>
+                                <p class="text-xs text-slate-500">Ash Shifa Diagnostic Centre Activity</p>
+                            </div>
+                            <span class="text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-lg">Last 7 Days</span>
+                        </div>
+                        <div class="relative w-full h-64">
+                            <canvas id="overviewChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-500"></i>
+                                <h3 class="font-bold text-slate-800 text-base">Critical Lab Alerts</h3>
+                            </div>
+                            <span class="bg-rose-100 text-rose-700 text-xs font-bold px-2 py-0.5 rounded-full">Urgent</span>
+                        </div>
+                        <div class="space-y-3 mt-3 overflow-y-auto flex-1 pr-1" id="criticalAlertsList">
+                            <div class="p-3 bg-rose-50 rounded-xl border border-rose-200">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="text-xs font-bold text-slate-800">Aisha Khan (#P-1001)</h4>
+                                    <span class="text-[10px] text-slate-400">12 min ago</span>
+                                </div>
+                                <p class="text-xs text-rose-700 font-semibold mt-1">Serum Potassium: 6.8 mmol/L (Critical High)</p>
+                                <button onclick="triggerDoctorCall('Aisha Khan')" class="mt-2 text-[11px] font-bold text-rose-700 hover:underline">
+                                    <i class="fa-solid fa-phone-volume mr-1"></i> Call Ref. Doctor
+                                </button>
+                            </div>
+                            <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="text-xs font-bold text-slate-800">Reagent Alert</h4>
+                                    <span class="text-[10px] text-slate-400">30 min ago</span>
+                                </div>
+                                <p class="text-xs text-amber-800 font-semibold mt-1">CBC Lysing Reagent running low (&lt; 15 units remaining)</p>
+                                <a href="#" onclick="switchTab('inventory')" class="mt-2 inline-block text-[11px] font-bold text-amber-700 hover:underline">
+                                    <i class="fa-solid fa-boxes-stacked mr-1"></i> Restock Reagents
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PATIENT MANAGEMENT -->
+            <div id="view-patients" class="tab-view hidden space-y-6">
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Patient Directory & Registration</h3>
+                            <p class="text-xs text-slate-500">Manage registered diagnostic patients</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" id="patientSearchInput" onkeyup="filterPatients()" placeholder="Search Name, Phone or ID..." class="px-3 py-1.5 bg-slate-100 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 w-64">
+                            <button onclick="openModal('patientModal')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition">
+                                <i class="fa-solid fa-user-plus mr-1"></i> Register New Patient
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto mt-4">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
+                                    <th class="py-3 px-4">Patient ID</th>
+                                    <th class="py-3 px-4">Name & Gender</th>
+                                    <th class="py-3 px-4">Phone Number</th>
+                                    <th class="py-3 px-4">Referred By</th>
+                                    <th class="py-3 px-4">Registration Date</th>
+                                    <th class="py-3 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientsTableBody" class="divide-y divide-slate-100 text-sm">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: APPOINTMENTS & BOOKING -->
+            <div id="view-appointments" class="tab-view hidden space-y-6">
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Appointment & Home Collection Schedules</h3>
+                            <p class="text-xs text-slate-500">Book diagnostic slots and manage patient visits</p>
+                        </div>
+                        <button onclick="openModal('appointmentModal')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition">
+                            <i class="fa-solid fa-calendar-plus mr-1"></i> Schedule New Slot
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto mt-4">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
+                                    <th class="py-3 px-4">Appointment ID</th>
+                                    <th class="py-3 px-4">Patient Name</th>
+                                    <th class="py-3 px-4">Date & Time</th>
+                                    <th class="py-3 px-4">Requested Test</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody" class="divide-y divide-slate-100 text-sm">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: TESTS & LAB WORK -->
+            <div id="view-tests" class="tab-view hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Available Tests Catalogue -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-base">Diagnostic Test Catalogue</h3>
+                                <p class="text-xs text-slate-500">Available medical tests and pricing</p>
+                            </div>
+                            <button onclick="openModal('addTestModal')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
+                                <i class="fa-solid fa-plus mr-1"></i> Add New Test
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto mt-4">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
+                                        <th class="py-2.5 px-3">Test Code</th>
+                                        <th class="py-2.5 px-3">Test Name</th>
+                                        <th class="py-2.5 px-3">Department</th>
+                                        <th class="py-2.5 px-3">Price (BDT)</th>
+                                        <th class="py-2.5 px-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="testCatalogueBody" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Lab Sample Workstation Form -->
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base border-b border-slate-100 pb-3">Sample Processing Workstation</h3>
+                            <form onsubmit="handleSampleStatusUpdate(event)" class="space-y-4 mt-4">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-600 block mb-1">Enter Barcode / Sample ID *</label>
+                                    <input type="text" id="sampleBarcode" required placeholder="e.g. SMP-1001" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-600 block mb-1">Update Processing Stage *</label>
+                                    <select id="sampleStageSelect" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                                        <option value="Collected">Stage 1: Sample Collected</option>
+                                        <option value="Processing">Stage 2: In Lab Processing</option>
+                                        <option value="Approved">Stage 3: Report Verified</option>
+                                        <option value="Delivered">Stage 4: Delivered to Patient</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md transition">
+                                    Update Sample Status
+                                </button>
+                            </form>
+                        </div>
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 mt-4">
+                            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-info text-teal-600 mr-1"></i> Workstation Tip:</p>
+                            Scan or enter the sample ID on physical sample vials to advance lab pipeline stages automatically.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: REPORT ENTRY & DELIVERY -->
+            <div id="view-reports" class="tab-view hidden space-y-6">
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Report Verification & Delivery</h3>
+                            <p class="text-xs text-slate-500">Input parameter values, approve reports, and print letterheads</p>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto mt-4">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
+                                    <th class="py-3 px-4">Report ID</th>
+                                    <th class="py-3 px-4">Patient Name</th>
+                                    <th class="py-3 px-4">Test Name</th>
+                                    <th class="py-3 px-4">Department</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportsTableBody" class="divide-y divide-slate-100 text-sm">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: BILLING & INVOICING -->
+            <div id="view-billing" class="tab-view hidden space-y-6">
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Billing & Invoice Management</h3>
+                            <p class="text-xs text-slate-500">Manage patient payments, discounts, and print invoices</p>
+                        </div>
+                        <button onclick="openModal('quickBillingModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Create New Invoice
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto mt-4">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
+                                    <th class="py-3 px-4">Invoice #</th>
+                                    <th class="py-3 px-4">Patient</th>
+                                    <th class="py-3 px-4">Subtotal</th>
+                                    <th class="py-3 px-4">Discount</th>
+                                    <th class="py-3 px-4">Net Total</th>
+                                    <th class="py-3 px-4">Payment Method</th>
+                                    <th class="py-3 px-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billingTableBody" class="divide-y divide-slate-100 text-sm">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 7: INVENTORY & REAGENTS -->
+            <div id="view-inventory" class="tab-view hidden space-y-6">
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Laboratory Reagents & Chemicals Inventory</h3>
+                            <p class="text-xs text-slate-500">Monitor reagent levels and receive low-stock alerts</p>
+                        </div>
+                        <button onclick="openModal('addStockModal')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                            <i class="fa-solid fa-box-archive mr-1"></i> Add Stock Item
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto mt-4">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
+                                    <th class="py-3 px-4">Item Name</th>
+                                    <th class="py-3 px-4">Category</th>
+                                    <th class="py-3 px-4">Available Quantity</th>
+                                    <th class="py-3 px-4">Expiry Date</th>
+                                    <th class="py-3 px-4">Stock Status</th>
+                                    <th class="py-3 px-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody" class="divide-y divide-slate-100 text-sm">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 8: REPORTS & ANALYTICS -->
+            <div id="view-analytics" class="tab-view hidden space-y-6">
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Diagnostic Revenue & Performance Analytics</h3>
+                            <p class="text-xs text-slate-500">Operational insight and financial summary</p>
+                        </div>
+                        <button onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition">
+                            <i class="fa-solid fa-file-csv mr-1"></i> Export Data CSV
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50">
+                            <h4 class="text-xs font-bold text-slate-700 uppercase mb-3">Test Categories Distribution</h4>
+                            <div class="relative h-60">
+                                <canvas id="analyticsDoughnutChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50 flex flex-col justify-between">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-700 uppercase mb-3">Executive Summary</h4>
+                                <ul class="space-y-3 text-sm">
+                                    <li class="flex justify-between border-b pb-2">
+                                        <span class="text-slate-500">Total Patients Registered:</span>
+                                        <span class="font-bold text-slate-800" id="analyticTotalPatients">48</span>
+                                    </li>
+                                    <li class="flex justify-between border-b pb-2">
+                                        <span class="text-slate-500">Most Requested Test:</span>
+                                        <span class="font-bold text-teal-700">CBC (Hematology)</span>
+                                    </li>
+                                    <li class="flex justify-between border-b pb-2">
+                                        <span class="text-slate-500">Average Turnaround Time:</span>
+                                        <span class="font-bold text-slate-800">1.8 Hours</span>
+                                    </li>
+                                    <li class="flex justify-between border-b pb-2">
+                                        <span class="text-slate-500">Monthly Revenue:</span>
+                                        <span class="font-bold text-emerald-600">৳8,45,000</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 9: ROLES & PERMISSIONS MANAGEMENT -->
+            <div id="view-roles" class="tab-view hidden space-y-6">
+                <!-- User Roles Overview Cards -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Defined System Roles</h3>
+                            <p class="text-xs text-slate-500">Configure access levels and module permissions for clinical and administrative staff</p>
+                        </div>
+                        <button onclick="openModal('addRoleModal')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-plus"></i> Create New Role
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4" id="rolesListContainer">
+                        <!-- Dynamic Role Cards -->
+                    </div>
+                </div>
+
+                <!-- System Users & Permissions Assignment Table -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Staff Accounts & Access Control</h3>
+                            <p class="text-xs text-slate-500">Manage user accounts and assign operational roles</p>
+                        </div>
+                        <button onclick="openModal('addUserModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-lock"></i> Add Staff Account
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto mt-4">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
+                                    <th class="py-3 px-4">Staff Member</th>
+                                    <th class="py-3 px-4">Email / ID</th>
+                                    <th class="py-3 px-4">Assigned Role</th>
+                                    <th class="py-3 px-4">Account Status</th>
+                                    <th class="py-3 px-4">Last Active</th>
+                                    <th class="py-3 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody" class="divide-y divide-slate-100 text-sm">
+                                <!-- Dynamic User Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 10: SETTINGS & STAFF -->
+            <div id="view-settings" class="tab-view hidden space-y-6">
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm max-w-3xl">
+                    <h3 class="font-bold text-slate-800 text-lg border-b border-slate-100 pb-3">Center Settings & Staff Profile</h3>
+
+                    <form onsubmit="handleSettingsUpdate(event)" class="space-y-4 mt-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-bold text-slate-600 block mb-1">Center Name</label>
+                                <input type="text" value="Ash Shifa Diagnostic Centre" readonly class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-600 block mb-1">Staff Member Name *</label>
+                                <input type="text" id="settingsName" required value="Dr. Ahmed Khan" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-bold text-slate-600 block mb-1">Role</label>
+                                <select id="settingsRole" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                                    <option value="Medical Director">Medical Director</option>
+                                    <option value="Lab Technologist">Lab Technologist</option>
+                                    <option value="Billing Officer">Billing Officer</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-600 block mb-1">New Password (Min 6 chars)</label>
+                                <input type="password" id="settingsPass" placeholder="Leave blank if unchanged" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 flex justify-end">
+                            <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-md transition">
+                                Save Profile Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL 1: NEW PATIENT REGISTRATION -->
+    <div id="patientModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">New Patient Registration</h3>
+                <button onclick="closeModal('patientModal')" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handlePatientRegistration(event)" class="space-y-3.5 mt-4">
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Full Name *</label>
+                    <input type="text" id="regName" required placeholder="e.g. Nusrat Jahan" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Phone Number (BD 11-Digit) *</label>
+                        <input type="tel" id="regPhone" required placeholder="01712345678" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Age *</label>
+                        <input type="number" id="regAge" required min="1" max="120" placeholder="e.g. 28" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Gender *</label>
+                        <select id="regGender" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                            <option>Female</option>
+                            <option>Male</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Referred By Doctor</label>
+                        <input type="text" id="regDoctor" placeholder="Dr. M. Rahman" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('patientModal')" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-md transition">Register Patient</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: BOOK APPOINTMENT -->
+    <div id="appointmentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">Schedule Diagnostic Visit</h3>
+                <button onclick="closeModal('appointmentModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleAppointmentSubmit(event)" class="space-y-3.5 mt-4">
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Select Patient *</label>
+                    <select id="appPatientSelect" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <!-- Dynamic options -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Date *</label>
+                        <input type="date" id="appDate" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Time Slot *</label>
+                        <select id="appTime" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                            <option>09:00 AM - 10:00 AM</option>
+                            <option>10:00 AM - 11:00 AM</option>
+                            <option>02:00 PM - 03:00 PM</option>
+                            <option>05:00 PM - 06:00 PM</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Select Diagnostic Test *</label>
+                    <select id="appTestSelect" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <!-- Dynamic options -->
+                    </select>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('appointmentModal')" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-md transition">Confirm Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: QUICK BILLING / INVOICE GENERATOR -->
+    <div id="quickBillingModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">Generate Patient Invoice</h3>
+                <button onclick="closeModal('quickBillingModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleInvoiceGeneration(event)" class="space-y-3.5 mt-4">
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Select Patient *</label>
+                    <select id="billPatientSelect" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <!-- Dynamic options -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Subtotal Amount (BDT) *</label>
+                    <input type="number" id="billSubtotal" required min="100" placeholder="1200" oninput="calculateBillTotals()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Discount (BDT)</label>
+                        <input type="number" id="billDiscount" value="0" min="0" oninput="calculateBillTotals()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Payment Method</label>
+                        <select id="billMethod" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                            <option>Cash</option>
+                            <option>bKash Mobile</option>
+                            <option>Nagad Mobile</option>
+                            <option>Card / POS</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center text-sm font-bold">
+                    <span>Net Payable Amount:</span>
+                    <span class="text-teal-700 text-lg" id="billNetDisplay">৳0</span>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('quickBillingModal')" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition">Issue Invoice & Collect</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: ADD DIAGNOSTIC TEST CATALOGUE -->
+    <div id="addTestModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">Add New Diagnostic Test</h3>
+                <button onclick="closeModal('addTestModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleAddTestCatalogue(event)" class="space-y-3.5 mt-4">
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Test Name *</label>
+                    <input type="text" id="testNameInput" required placeholder="e.g. Dengue NS1 Antigen" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Department *</label>
+                    <select id="testDeptInput" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <option>Hematology</option>
+                        <option>Biochemistry</option>
+                        <option>Serology / Virology</option>
+                        <option>Endocrinology</option>
+                        <option>Radiology & Imaging</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Price in BDT *</label>
+                    <input type="number" id="testPriceInput" required min="50" placeholder="e.g. 600" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('addTestModal')" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-md transition">Save Test Catalogue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: ADD REAGENT STOCK -->
+    <div id="addStockModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">Add Inventory Stock Item</h3>
+                <button onclick="closeModal('addStockModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleAddInventoryStock(event)" class="space-y-3.5 mt-4">
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Item / Reagent Name *</label>
+                    <input type="text" id="stockName" required placeholder="e.g. CBC Diluent Buffer" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Category *</label>
+                    <select id="stockCategory" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <option>Reagents & Chemicals</option>
+                        <option>Specimen Tubes & Vials</option>
+                        <option>PPE & Disposables</option>
+                        <option>Calibrators & Controls</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Quantity *</label>
+                        <input type="number" id="stockQty" required min="1" placeholder="50" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Expiry Date *</label>
+                        <input type="date" id="stockExpiry" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('addStockModal')" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-md transition">Add Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 6: ENTER LAB RESULT PARAMETERS -->
+    <div id="enterResultModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">Enter Lab Parameter Results</h3>
+                <button onclick="closeModal('enterResultModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleSaveLabResults(event)" class="space-y-3.5 mt-4">
+                <input type="hidden" id="resultReportId">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
+                    <p><strong class="text-slate-700">Patient:</strong> <span id="resPatName"></span></p>
+                    <p><strong class="text-slate-700">Test:</strong> <span id="resTestName"></span></p>
+                </div>
+
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Primary Parameter Result Value *</label>
+                    <input type="text" id="resVal1" required placeholder="e.g. 13.5 g/dL or 4.2 mmol/L" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Secondary Remarks / Pathology Notes</label>
+                    <input type="text" id="resRemarks" placeholder="Normal findings / Critical value alert" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('enterResultModal')" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-md transition">Approve & Save Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 7: PRINTABLE MEDICAL REPORT PREVIEW -->
+    <div id="reportPrintModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                <h3 class="text-sm font-bold text-slate-800">Diagnostic Report Document Preview</h3>
+                <button onclick="closeModal('reportPrintModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Printable Document Body -->
+            <div id="printableArea" class="mt-4 p-6 border border-slate-300 rounded-xl bg-white space-y-4">
+                <!-- Letterhead -->
+                <div class="text-center border-b-2 border-teal-700 pb-3">
+                    <h1 class="text-2xl font-black text-teal-800 uppercase tracking-wide">Ash Shifa Diagnostic Centre</h1>
+                    <p class="text-xs text-slate-600 font-semibold">House #12, Road #4, Dhanmondi, Dhaka-1205 | Hotline: +880 9612-345678</p>
+                    <p class="text-[10px] text-slate-400">ISO 9001:2015 Certified Medical Diagnostic Laboratory</p>
+                </div>
+
+                <!-- Patient Details -->
+                <div class="grid grid-cols-2 bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs gap-y-1.5">
+                    <div><span class="text-slate-500">Patient Name:</span> <strong id="printPatName" class="text-slate-900">Aisha Khan</strong></div>
+                    <div><span class="text-slate-500">Report Reference:</span> <strong id="printRepID" class="text-slate-900">#P-1001</strong></div>
+                    <div><span class="text-slate-500">Gender / Age:</span> <span id="printPatMeta" class="text-slate-800">Female / 34 Yrs</span></div>
+                    <div><span class="text-slate-500">Report Date:</span> <span class="text-slate-800" id="printReportDate">25 Oct 2026</span></div>
+                </div>
+
+                <!-- Report Table -->
+                <div class="mt-4">
+                    <h3 class="text-xs font-bold text-teal-800 uppercase tracking-wider mb-2" id="printTestName">Complete Blood Count (CBC)</h3>
+                    <table class="w-full text-xs text-left border border-slate-200">
+                        <thead class="bg-slate-100 text-slate-700 border-b border-slate-200 font-bold">
+                            <tr>
+                                <th class="p-2 border-r">Test Parameter</th>
+                                <th class="p-2 border-r">Result</th>
+                                <th class="p-2 border-r">Reference Range</th>
+                                <th class="p-2">Unit</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200" id="printTableRows">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-between items-end pt-8 text-xs">
+                    <div class="text-center">
+                        <div class="w-24 border-b border-slate-400 mb-1"></div>
+                        <p class="font-bold text-slate-700">Lab Technologist</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-32 border-b border-slate-400 mb-1"></div>
+                        <p class="font-bold text-slate-800" id="printDoctorName">Dr. Ahmed Khan</p>
+                        <p class="text-[10px] text-slate-500">Chief Pathologist</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 flex justify-end space-x-2">
+                <button onclick="closeModal('reportPrintModal')" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">Close</button>
+                <button onclick="window.print()" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Print Diagnostic Report</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 8: CREATE NEW SYSTEM ROLE -->
+    <div id="addRoleModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">Create Custom Staff Role</h3>
+                <button onclick="closeModal('addRoleModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleCreateRole(event)" class="space-y-4 mt-4">
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Role Title *</label>
+                    <input type="text" id="roleTitle" required placeholder="e.g. Senior Pathologist" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Role Description</label>
+                    <input type="text" id="roleDesc" placeholder="Brief summary of duties" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-2">Assign Module Access & Permissions *</label>
+                    <div class="space-y-2 max-h-48 overflow-y-auto p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="perm" value="Patients Management" class="rounded text-teal-600 focus:ring-teal-500">
+                            <span class="font-semibold">Patients Management (View/Register)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="perm" value="Appointments & Slot Scheduling" class="rounded text-teal-600 focus:ring-teal-500">
+                            <span class="font-semibold">Appointments & Slot Scheduling</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="perm" value="Lab Workstation & Tests" class="rounded text-teal-600 focus:ring-teal-500">
+                            <span class="font-semibold">Lab Workstation & Test Processing</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="perm" value="Report Verification & Entry" class="rounded text-teal-600 focus:ring-teal-500">
+                            <span class="font-semibold">Report Verification & Result Entry</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="perm" value="Billing & Invoices" class="rounded text-teal-600 focus:ring-teal-500">
+                            <span class="font-semibold">Billing & Financial Invoices</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="perm" value="Inventory & Reagents" class="rounded text-teal-600 focus:ring-teal-500">
+                            <span class="font-semibold">Inventory & Reagents Restock</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="perm" value="Executive Analytics" class="rounded text-teal-600 focus:ring-teal-500">
+                            <span class="font-semibold">Executive Revenue & Analytics</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('addRoleModal')" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-md transition">Save Role Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 9: ADD NEW STAFF USER -->
+    <div id="addUserModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">Add Staff Account</h3>
+                <button onclick="closeModal('addUserModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleCreateUser(event)" class="space-y-3.5 mt-4">
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Full Name *</label>
+                    <input type="text" id="userName" required placeholder="e.g. Dr. Mahmud Hasan" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Email / Username *</label>
+                        <input type="email" id="userEmail" required placeholder="staff@ashshifa.com" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 block mb-1">Assign Role *</label>
+                        <select id="userRoleSelect" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <!-- Dynamic Role Options -->
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 block mb-1">Temporary Password *</label>
+                    <input type="password" id="userPassword" required minlength="6" placeholder="******" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('addUserModal')" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition">Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CENTRAL JAVASCRIPT STATE ENGINE -->
+    <script>
+        // CENTRAL APP STATE
+        const appState = {
+            patients: [
+                { id: 'P-1001', name: 'Aisha Khan', age: 34, gender: 'Female', phone: '01711223344', doctor: 'Dr. M. Rahman', date: '2026-10-25' },
+                { id: 'P-1002', name: 'Karim Uddin', age: 45, gender: 'Male', phone: '01899887766', doctor: 'Dr. S. Islam', date: '2026-10-25' },
+                { id: 'P-1003', name: 'Sabina Begum', age: 29, gender: 'Female', phone: '01522334455', doctor: 'Dr. M. Rahman', date: '2026-10-24' },
+                { id: 'P-1004', name: 'Tanvir Hossain', age: 52, gender: 'Male', phone: '01911445566', doctor: 'Dr. K. Chowdhury', date: '2026-10-24' }
+            ],
+            appointments: [
+                { id: 'APP-801', patient: 'Aisha Khan', date: '2026-10-25', time: '09:00 AM - 10:00 AM', test: 'Complete Blood Count (CBC)', status: 'Completed' },
+                { id: 'APP-802', patient: 'Karim Uddin', date: '2026-10-25', time: '10:00 AM - 11:00 AM', test: 'Thyroid Profile (T3, T4, TSH)', status: 'In Progress' },
+                { id: 'APP-803', patient: 'Sabina Begum', date: '2026-10-26', time: '02:00 PM - 03:00 PM', test: 'Lipid Profile', status: 'Scheduled' }
+            ],
+            testCatalogue: [
+                { code: 'TST-101', name: 'Complete Blood Count (CBC)', dept: 'Hematology', price: 500 },
+                { code: 'TST-102', name: 'Thyroid Profile (T3, T4, TSH)', dept: 'Endocrinology', price: 1200 },
+                { code: 'TST-103', name: 'Lipid Profile', dept: 'Biochemistry', price: 900 },
+                { code: 'TST-104', name: 'Ultrasonography (USG Whole Abdomen)', dept: 'Radiology & Imaging', price: 1800 },
+                { code: 'TST-105', name: 'Dengue NS1 Antigen', dept: 'Serology / Virology', price: 700 }
+            ],
+            reports: [
+                { id: 'REP-1001', patient: 'Aisha Khan', test: 'Complete Blood Count (CBC)', dept: 'Hematology', status: 'Approved', resultVal: 'Hb 13.5 g/dL, WBC 7,200', remarks: 'Normal Hematology' },
+                { id: 'REP-1002', patient: 'Karim Uddin', test: 'Thyroid Profile (T3, T4, TSH)', dept: 'Endocrinology', status: 'Pending Result', resultVal: '', remarks: '' },
+                { id: 'REP-1003', patient: 'Sabina Begum', test: 'Lipid Profile', dept: 'Biochemistry', status: 'Approved', resultVal: 'Cholesterol 195 mg/dL', remarks: 'Normal' }
+            ],
+            invoices: [
+                { id: 'INV-301', patient: 'Aisha Khan', subtotal: 1200, discount: 200, net: 1000, method: 'bKash Mobile' },
+                { id: 'INV-302', patient: 'Karim Uddin', subtotal: 1800, discount: 0, net: 1800, method: 'Cash' },
+                { id: 'INV-303', patient: 'Sabina Begum', subtotal: 1500, discount: 0, net: 1500, method: 'Nagad Mobile' }
+            ],
+            inventory: [
+                { name: 'CBC Reagent Pack (Reagent A & B)', category: 'Reagents & Chemicals', qty: 45, expiry: '2027-04-15', status: 'Adequate' },
+                { name: 'EDTA Blood Collection Vials 3ml', category: 'Specimen Tubes & Vials', qty: 320, expiry: '2028-01-10', status: 'Adequate' },
+                { name: 'Serum Lysing Reagent Solution', category: 'Reagents & Chemicals', qty: 12, expiry: '2026-11-30', status: 'Low Stock' },
+                { name: 'Sterile Disposable Syringes 5ml', category: 'PPE & Disposables', qty: 500, expiry: '2028-06-20', status: 'Adequate' }
+            ],
+            roles: [
+                {
+                    id: 'ROLE-1',
+                    name: 'Medical Director',
+                    desc: 'Full administrative control over all diagnostic modules, reports, billing & staff management.',
+                    permissions: ['Patients Management', 'Appointments & Slot Scheduling', 'Lab Workstation & Tests', 'Report Verification & Entry', 'Billing & Invoices', 'Inventory & Reagents', 'Executive Analytics'],
+                    badgeColor: 'bg-teal-100 text-teal-800 border-teal-200'
+                },
+                {
+                    id: 'ROLE-2',
+                    name: 'Lab Technologist',
+                    desc: 'Access restricted to sample processing, entering test results, and monitoring chemical reagents.',
+                    permissions: ['Patients Management', 'Lab Workstation & Tests', 'Report Verification & Entry', 'Inventory & Reagents'],
+                    badgeColor: 'bg-sky-100 text-sky-800 border-sky-200'
+                },
+                {
+                    id: 'ROLE-3',
+                    name: 'Billing Officer',
+                    desc: 'Responsible for issuing invoices, recording payments, and patient registration desk.',
+                    permissions: ['Patients Management', 'Appointments & Slot Scheduling', 'Billing & Invoices'],
+                    badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200'
+                }
+            ],
+            users: [
+                { id: 'USR-101', name: 'Dr. Ahmed Khan', email: 'ahmed.khan@ashshifa.com', role: 'Medical Director', status: 'Active', lastActive: '2 min ago' },
+                { id: 'USR-102', name: 'Anisur Rahman', email: 'anis.lab@ashshifa.com', role: 'Lab Technologist', status: 'Active', lastActive: '15 min ago' },
+                { id: 'USR-103', name: 'Fatema Tuz Zohra', email: 'fatema.billing@ashshifa.com', role: 'Billing Officer', status: 'Active', lastActive: '1 hour ago' }
+            ],
+            currentUser: { name: 'Dr. Ahmed Khan', role: 'Medical Director' }
+        };
+
+        // NOTIFICATION TOAST
+        function showToast(msg, type = 'success') {
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-teal-800 text-white' : 'bg-rose-800 text-white';
+            toast.className = `${bgClass} px-4 py-3 rounded-xl shadow-lg font-bold text-xs flex items-center space-x-2 transition-all transform translate-y-2 pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i><span>${msg}</span>`;
+            
+            const container = document.getElementById('toastContainer');
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // NAVIGATION LOGIC
+        function toggleDesktopSidebar() {
+            if (window.innerWidth < 1024) return;
+            const sidebar = document.getElementById('sidebar');
+            const button = document.getElementById('sidebar-collapse-toggle');
+            const icon = document.getElementById('sidebar-collapse-icon');
+            const collapsed = sidebar.classList.toggle('sidebar-collapsed');
+            icon.className = collapsed ? 'fas fa-angles-right' : 'fas fa-angles-left';
+            button.setAttribute('aria-expanded', String(!collapsed));
+            button.setAttribute('title', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+            button.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        function closeMobileSidebar() {
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            document.getElementById('sidebar-backdrop').classList.add('hidden');
+        }
+
+        function handleNavClick(sectionId) {
+            switchTab(sectionId);
+            if (window.innerWidth < 1024) {
+                closeMobileSidebar();
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
+            const targetView = document.getElementById(`view-${tabId}`);
+            if (targetView) targetView.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-slate-800', 'text-teal-400');
+                item.classList.add('text-slate-400');
+            });
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.remove('text-slate-400');
+                activeNav.classList.add('bg-slate-800', 'text-teal-400');
+            }
+
+            const titles = {
+                'dashboard': 'Dashboard Overview',
+                'patients': 'Patient Directory & Registration',
+                'appointments': 'Appointments & Schedules',
+                'tests': 'Laboratory Tests & Workstation',
+                'reports': 'Report Entry & Delivery',
+                'billing': 'Billing & Financial Invoicing',
+                'inventory': 'Reagents & Inventory Management',
+                'analytics': 'Performance & Revenue Analytics',
+                'roles': 'Roles & Access Control Management',
+                'settings': 'Center Settings & Profile'
+            };
+            if (titles[tabId]) {
+                document.getElementById('page-title').innerText = titles[tabId];
+            }
+            // Keep the breadcrumb synchronized with the active navigation section.
+            const breadcrumbCurrent = document.getElementById('breadcrumb-current');
+            if (breadcrumbCurrent) {
+                const currentTitle = titles[tabId] || (activeNav ? activeNav.innerText.trim() : tabId);
+                const isBangla = document.body.classList.contains('bn-language');
+                const banglaTitles = {
+                    dashboard: 'ড্যাশবোর্ড', patients: 'রোগী তালিকা ও নিবন্ধন',
+                    appointments: 'অ্যাপয়েন্টমেন্ট ও সময়সূচি', tests: 'ল্যাব টেস্ট ও ওয়ার্কস্টেশন',
+                    reports: 'রিপোর্ট এন্ট্রি ও প্রদান', billing: 'বিলিং ও আর্থিক হিসাব',
+                    inventory: 'রিএজেন্ট ও ইনভেন্টরি ব্যবস্থাপনা', analytics: 'কার্যকারিতা ও আয়ের বিশ্লেষণ',
+                    roles: 'রোল ও প্রবেশাধিকার নিয়ন্ত্রণ', settings: 'সেন্টার সেটিংস ও প্রোফাইল'
+                };
+                breadcrumbCurrent.textContent = isBangla ? (banglaTitles[tabId] || currentTitle) : currentTitle;
+            }
+            const breadcrumbHome = document.querySelector('[data-breadcrumb-home]');
+            if (breadcrumbHome) breadcrumbHome.textContent = document.body.classList.contains('bn-language') ? 'হোম' : 'Home';
+        }
+
+        // MODAL TOGGLES
+        function openModal(modalId) {
+            populatePatientDropdowns();
+            populateTestDropdowns();
+            populateRoleDropdowns();
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // RENDERERS
+        function renderPatientsTable() {
+            const tbody = document.getElementById('patientsTableBody');
+            tbody.innerHTML = appState.patients.map(p => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3 px-4 font-bold text-teal-700">${p.id}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${p.name} <span class="text-xs text-slate-400 font-normal">(${p.gender}, ${p.age} yrs)</span></td>
+                    <td class="py-3 px-4 text-slate-600 font-mono">${p.phone}</td>
+                    <td class="py-3 px-4 text-slate-600">${p.doctor || 'Self / Walk-in'}</td>
+                    <td class="py-3 px-4 text-slate-500 text-xs">${p.date}</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="quickBillForPatient('${p.name}')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 mr-2">
+                            <i class="fa-solid fa-receipt"></i> Bill
+                        </button>
+                        <button onclick="deletePatient('${p.id}')" class="text-xs font-bold text-rose-500 hover:text-rose-700">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            document.getElementById('statTodayPatients').innerText = appState.patients.length;
+            document.getElementById('analyticTotalPatients').innerText = appState.patients.length;
+        }
+
+        function renderAppointmentsTable() {
+            const tbody = document.getElementById('appointmentsTableBody');
+            tbody.innerHTML = appState.appointments.map(a => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3 px-4 font-bold text-slate-700">${a.id}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${a.patient}</td>
+                    <td class="py-3 px-4 text-slate-600 text-xs">${a.date} | ${a.time}</td>
+                    <td class="py-3 px-4 text-slate-700 font-medium">${a.test}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                            a.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' :
+                            a.status === 'In Progress' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
+                        }">${a.status}</span>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="toggleAppointmentStatus('${a.id}')" class="text-xs font-bold text-teal-600 hover:underline">Toggle Status</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderTestCatalogueTable() {
+            const tbody = document.getElementById('testCatalogueBody');
+            tbody.innerHTML = appState.testCatalogue.map(t => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-2.5 px-3 font-bold text-slate-700">${t.code}</td>
+                    <td class="py-2.5 px-3 font-semibold text-slate-800">${t.name}</td>
+                    <td class="py-2.5 px-3 text-slate-600 text-xs">${t.dept}</td>
+                    <td class="py-2.5 px-3 font-bold text-emerald-700">৳${t.price}</td>
+                    <td class="py-2.5 px-3 text-right">
+                        <button onclick="deleteTestCatalogue('${t.code}')" class="text-xs text-rose-500 font-bold hover:underline">Remove</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderReportsTable() {
+            const tbody = document.getElementById('reportsTableBody');
+            tbody.innerHTML = appState.reports.map(r => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3 px-4 font-bold text-teal-700">${r.id}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${r.patient}</td>
+                    <td class="py-3 px-4 text-slate-700 font-medium">${r.test}</td>
+                    <td class="py-3 px-4 text-slate-500 text-xs">${r.dept}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                            r.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        }">${r.status}</span>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        ${r.status === 'Approved' ? 
+                            `<button onclick="openReportPrint('${r.id}')" class="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold transition"><i class="fa-solid fa-print mr-1"></i> Print</button>` : 
+                            `<button onclick="openResultEntry('${r.id}')" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition"><i class="fa-solid fa-pen mr-1"></i> Enter Results</button>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+
+            const pending = appState.reports.filter(r => r.status !== 'Approved').length;
+            const completed = appState.reports.filter(r => r.status === 'Approved').length;
+            document.getElementById('statPendingReports').innerText = pending;
+            document.getElementById('statCompletedTests').innerText = completed;
+        }
+
+        function renderBillingTable() {
+            const tbody = document.getElementById('billingTableBody');
+            let totalRev = 0;
+            tbody.innerHTML = appState.invoices.map(i => {
+                totalRev += i.net;
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-bold text-slate-700">${i.id}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-800">${i.patient}</td>
+                        <td class="py-3 px-4 text-slate-600">৳${i.subtotal}</td>
+                        <td class="py-3 px-4 text-rose-500">৳${i.discount}</td>
+                        <td class="py-3 px-4 font-bold text-emerald-700">৳${i.net}</td>
+                        <td class="py-3 px-4 text-xs text-slate-600">${i.method}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="showToast('Invoice ${i.id} ready to print', 'success')" class="text-xs text-indigo-600 font-bold hover:underline"><i class="fa-solid fa-print mr-1"></i> Print Receipt</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            document.getElementById('statTotalRevenue').innerText = `৳${totalRev.toLocaleString()}`;
+        }
+
+        function renderInventoryTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            tbody.innerHTML = appState.inventory.map((inv, index) => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3 px-4 font-semibold text-slate-800">${inv.name}</td>
+                    <td class="py-3 px-4 text-slate-500 text-xs">${inv.category}</td>
+                    <td class="py-3 px-4 font-bold text-slate-800">${inv.qty} units</td>
+                    <td class="py-3 px-4 text-slate-600 text-xs">${inv.expiry}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${inv.qty < 20 ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}">${inv.status}</span>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="restockItem(${index})" class="text-xs text-teal-600 font-bold hover:underline">+ Add Stock</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderRolesAndPermissions() {
+            // Render Role Cards
+            const container = document.getElementById('rolesListContainer');
+            container.innerHTML = appState.roles.map(r => `
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold border ${r.badgeColor}">${r.name}</span>
+                            <span class="text-[10px] text-slate-400 font-mono">${r.id}</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mt-2 line-clamp-2">${r.desc}</p>
+                        <div class="mt-3">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase">Granted Module Permissions:</p>
+                            <div class="flex flex-wrap gap-1 mt-1.5">
+                                ${r.permissions.map(p => `<span class="bg-white border border-slate-200 text-slate-700 text-[10px] px-2 py-0.5 rounded-md font-medium"><i class="fa-solid fa-check text-emerald-600 mr-1"></i>${p}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-2 border-t border-slate-200 flex justify-end space-x-2">
+                        <button onclick="deleteRole('${r.id}')" class="text-xs text-rose-500 font-bold hover:underline"><i class="fa-solid fa-trash mr-1"></i>Delete Role</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render Staff Accounts Table
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = appState.users.map(u => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3 px-4 font-semibold text-slate-800 flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs">
+                            ${u.name.charAt(0)}
+                        </div>
+                        <span>${u.name}</span>
+                    </td>
+                    <td class="py-3 px-4 text-slate-600 text-xs font-mono">${u.email}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-xs font-semibold border border-slate-200">${u.role}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">${u.status}</span>
+                    </td>
+                    <td class="py-3 px-4 text-slate-500 text-xs">${u.lastActive}</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="toggleUserStatus('${u.id}')" class="text-xs text-indigo-600 font-bold hover:underline mr-2">Toggle Status</button>
+                        <button onclick="deleteUser('${u.id}')" class="text-xs text-rose-500 font-bold hover:underline"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function populatePatientDropdowns() {
+            const options = appState.patients.map(p => `<option value="${p.name}">${p.name} (${p.id} - ${p.phone})</option>`).join('');
+            document.getElementById('appPatientSelect').innerHTML = options;
+            document.getElementById('billPatientSelect').innerHTML = options;
+        }
+
+        function populateTestDropdowns() {
+            const options = appState.testCatalogue.map(t => `<option value="${t.name}">${t.name} (৳${t.price})</option>`).join('');
+            document.getElementById('appTestSelect').innerHTML = options;
+        }
+
+        function populateRoleDropdowns() {
+            const options = appState.roles.map(r => `<option value="${r.name}">${r.name}</option>`).join('');
+            document.getElementById('userRoleSelect').innerHTML = options;
+            document.getElementById('settingsRole').innerHTML = options;
+        }
+
+        // FORM HANDLERS
+        function handlePatientRegistration(e) {
+            e.preventDefault();
+            const phone = document.getElementById('regPhone').value.trim();
+            const bdPhoneRegex = /^(?:\+88|88)?(01[3-9]\d{8})$/;
+
+            if (!bdPhoneRegex.test(phone)) {
+                showToast('Please enter a valid 11-digit Bangladeshi mobile number', 'error');
+                return;
+            }
+
+            const newPatient = {
+                id: `P-${1000 + appState.patients.length + 1}`,
+                name: document.getElementById('regName').value.trim(),
+                phone: phone,
+                age: parseInt(document.getElementById('regAge').value),
+                gender: document.getElementById('regGender').value,
+                doctor: document.getElementById('regDoctor').value.trim() || 'Self / Walk-in',
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            appState.patients.unshift(newPatient);
+            renderPatientsTable();
+            closeModal('patientModal');
+            showToast(`Patient ${newPatient.name} registered successfully!`);
+            e.target.reset();
+        }
+
+        function handleAppointmentSubmit(e) {
+            e.preventDefault();
+            const newApp = {
+                id: `APP-${800 + appState.appointments.length + 1}`,
+                patient: document.getElementById('appPatientSelect').value,
+                date: document.getElementById('appDate').value,
+                time: document.getElementById('appTime').value,
+                test: document.getElementById('appTestSelect').value,
+                status: 'Scheduled'
+            };
+
+            appState.appointments.unshift(newApp);
+            renderAppointmentsTable();
+            closeModal('appointmentModal');
+            showToast(`Appointment ${newApp.id} scheduled for ${newApp.patient}`);
+            e.target.reset();
+        }
+
+        function handleInvoiceGeneration(e) {
+            e.preventDefault();
+            const subtotal = parseFloat(document.getElementById('billSubtotal').value) || 0;
+            const discount = parseFloat(document.getElementById('billDiscount').value) || 0;
+            const net = Math.max(0, subtotal - discount);
+
+            const newInv = {
+                id: `INV-${300 + appState.invoices.length + 1}`,
+                patient: document.getElementById('billPatientSelect').value,
+                subtotal: subtotal,
+                discount: discount,
+                net: net,
+                method: document.getElementById('billMethod').value
+            };
+
+            appState.invoices.unshift(newInv);
+            renderBillingTable();
+            closeModal('quickBillingModal');
+            showToast(`Invoice ${newInv.id} issued successfully for ৳${net}`);
+            e.target.reset();
+        }
+
+        function calculateBillTotals() {
+            const subtotal = parseFloat(document.getElementById('billSubtotal').value) || 0;
+            const discount = parseFloat(document.getElementById('billDiscount').value) || 0;
+            const net = Math.max(0, subtotal - discount);
+            document.getElementById('billNetDisplay').innerText = `৳${net.toLocaleString()}`;
+        }
+
+        function handleAddTestCatalogue(e) {
+            e.preventDefault();
+            const newTest = {
+                code: `TST-${100 + appState.testCatalogue.length + 1}`,
+                name: document.getElementById('testNameInput').value.trim(),
+                dept: document.getElementById('testDeptInput').value,
+                price: parseFloat(document.getElementById('testPriceInput').value)
+            };
+
+            appState.testCatalogue.push(newTest);
+            renderTestCatalogueTable();
+            closeModal('addTestModal');
+            showToast(`Added ${newTest.name} to test catalogue`);
+            e.target.reset();
+        }
+
+        function handleAddInventoryStock(e) {
+            e.preventDefault();
+            const newStock = {
+                name: document.getElementById('stockName').value.trim(),
+                category: document.getElementById('stockCategory').value,
+                qty: parseInt(document.getElementById('stockQty').value),
+                expiry: document.getElementById('stockExpiry').value,
+                status: 'Adequate'
+            };
+
+            appState.inventory.push(newStock);
+            renderInventoryTable();
+            closeModal('addStockModal');
+            showToast(`Restocked ${newStock.name}`);
+            e.target.reset();
+        }
+
+        function handleSampleStatusUpdate(e) {
+            e.preventDefault();
+            const barcode = document.getElementById('sampleBarcode').value.trim();
+            const stage = document.getElementById('sampleStageSelect').value;
+            
+            showToast(`Sample ${barcode} updated to stage: ${stage}`, 'success');
+            e.target.reset();
+        }
+
+        function handleCreateRole(e) {
+            e.preventDefault();
+            const title = document.getElementById('roleTitle').value.trim();
+            const desc = document.getElementById('roleDesc').value.trim() || 'Custom user role permissions';
+            const checkedBoxes = Array.from(document.querySelectorAll('input[name="perm"]:checked')).map(cb => cb.value);
+
+            if (checkedBoxes.length === 0) {
+                showToast('Select at least one module permission', 'error');
+                return;
+            }
+
+            const newRole = {
+                id: `ROLE-${appState.roles.length + 1}`,
+                name: title,
+                desc: desc,
+                permissions: checkedBoxes,
+                badgeColor: 'bg-purple-100 text-purple-800 border-purple-200'
+            };
+
+            appState.roles.push(newRole);
+            renderRolesAndPermissions();
+            closeModal('addRoleModal');
+            showToast(`Created role profile: ${title}`);
+            e.target.reset();
+        }
+
+        function handleCreateUser(e) {
+            e.preventDefault();
+            const name = document.getElementById('userName').value.trim();
+            const email = document.getElementById('userEmail').value.trim();
+            const role = document.getElementById('userRoleSelect').value;
+
+            const newUser = {
+                id: `USR-${100 + appState.users.length + 1}`,
+                name: name,
+                email: email,
+                role: role,
+                status: 'Active',
+                lastActive: 'Just now'
+            };
+
+            appState.users.push(newUser);
+            renderRolesAndPermissions();
+            closeModal('addUserModal');
+            showToast(`Staff account created for ${name}`);
+            e.target.reset();
+        }
+
+        function openResultEntry(reportId) {
+            const report = appState.reports.find(r => r.id === reportId);
+            if (!report) return;
+
+            document.getElementById('resultReportId').value = report.id;
+            document.getElementById('resPatName').innerText = report.patient;
+            document.getElementById('resTestName').innerText = report.test;
+            openModal('enterResultModal');
+        }
+
+        function handleSaveLabResults(e) {
+            e.preventDefault();
+            const reportId = document.getElementById('resultReportId').value;
+            const report = appState.reports.find(r => r.id === reportId);
+            
+            if (report) {
+                report.status = 'Approved';
+                report.resultVal = document.getElementById('resVal1').value.trim();
+                report.remarks = document.getElementById('resRemarks').value.trim() || 'Normal findings';
+                renderReportsTable();
+                closeModal('enterResultModal');
+                showToast(`Report ${reportId} approved & verified`);
+            }
+        }
+
+        function openReportPrint(reportId) {
+            const report = appState.reports.find(r => r.id === reportId);
+            if (!report) return;
+
+            document.getElementById('printPatName').innerText = report.patient;
+            document.getElementById('printRepID').innerText = `#${report.id}`;
+            document.getElementById('printTestName').innerText = report.test;
+            document.getElementById('printReportDate').innerText = new Date().toISOString().split('T')[0];
+
+            document.getElementById('printTableRows').innerHTML = `
+                <tr>
+                    <td class="p-2 border-r font-medium">${report.test} Main Parameter</td>
+                    <td class="p-2 border-r font-bold text-teal-800">${report.resultVal || '13.5'}</td>
+                    <td class="p-2 border-r text-slate-500">12.0 - 16.0</td>
+                    <td class="p-2 text-slate-500">g/dL</td>
+                </tr>
+            `;
+
+            openModal('reportPrintModal');
+        }
+
+        function handleSettingsUpdate(e) {
+            e.preventDefault();
+            const newName = document.getElementById('settingsName').value.trim();
+            const newRole = document.getElementById('settingsRole').value;
+            
+            appState.currentUser.name = newName;
+            appState.currentUser.role = newRole;
+
+            document.getElementById('currentUserName').innerText = newName;
+            document.getElementById('currentUserRole').innerText = newRole;
+            document.getElementById('printDoctorName').innerText = newName;
+
+            showToast('Profile and center settings saved');
+        }
+
+        // UTILITY FUNCTIONS
+        function filterPatients() {
+            const query = document.getElementById('patientSearchInput').value.toLowerCase();
+            const filtered = appState.patients.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.phone.includes(query) || 
+                p.id.toLowerCase().includes(query)
+            );
+            
+            const tbody = document.getElementById('patientsTableBody');
+            tbody.innerHTML = filtered.map(p => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3 px-4 font-bold text-teal-700">${p.id}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${p.name} <span class="text-xs text-slate-400 font-normal">(${p.gender}, ${p.age} yrs)</span></td>
+                    <td class="py-3 px-4 text-slate-600 font-mono">${p.phone}</td>
+                    <td class="py-3 px-4 text-slate-600">${p.doctor || 'Self / Walk-in'}</td>
+                    <td class="py-3 px-4 text-slate-500 text-xs">${p.date}</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="quickBillForPatient('${p.name}')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 mr-2"><i class="fa-solid fa-receipt"></i> Bill</button>
+                        <button onclick="deletePatient('${p.id}')" class="text-xs font-bold text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function quickBillForPatient(patientName) {
+            switchTab('billing');
+            openModal('quickBillingModal');
+            document.getElementById('billPatientSelect').value = patientName;
+        }
+
+        function deletePatient(id) {
+            appState.patients = appState.patients.filter(p => p.id !== id);
+            renderPatientsTable();
+            showToast(`Deleted patient ${id}`, 'error');
+        }
+
+        function deleteTestCatalogue(code) {
+            appState.testCatalogue = appState.testCatalogue.filter(t => t.code !== code);
+            renderTestCatalogueTable();
+            showToast(`Removed test ${code}`);
+        }
+
+        function deleteRole(roleId) {
+            appState.roles = appState.roles.filter(r => r.id !== roleId);
+            renderRolesAndPermissions();
+            showToast(`Role ${roleId} removed`);
+        }
+
+        function deleteUser(userId) {
+            appState.users = appState.users.filter(u => u.id !== userId);
+            renderRolesAndPermissions();
+            showToast(`Staff account ${userId} deleted`, 'error');
+        }
+
+        function toggleUserStatus(userId) {
+            const usr = appState.users.find(u => u.id === userId);
+            if (usr) {
+                usr.status = usr.status === 'Active' ? 'Disabled' : 'Active';
+                renderRolesAndPermissions();
+                showToast(`User ${usr.name} status updated to ${usr.status}`);
+            }
+        }
+
+        function toggleAppointmentStatus(id) {
+            const app = appState.appointments.find(a => a.id === id);
+            if (app) {
+                app.status = app.status === 'Scheduled' ? 'In Progress' : app.status === 'In Progress' ? 'Completed' : 'Scheduled';
+                renderAppointmentsTable();
+                showToast(`Appointment ${id} status updated to ${app.status}`);
+            }
+        }
+
+        function restockItem(index) {
+            appState.inventory[index].qty += 50;
+            appState.inventory[index].status = 'Adequate';
+            renderInventoryTable();
+            showToast(`Added 50 units to ${appState.inventory[index].name}`);
+        }
+
+        function triggerDoctorCall(name) {
+            showToast(`Initiating direct audio call to treating doctor for ${name}...`, 'success');
+        }
+
+        function exportCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Patient_ID,Name,Phone,Doctor,Date\n";
+            appState.patients.forEach(p => {
+                csvContent += `${p.id},${p.name},${p.phone},${p.doctor},${p.date}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "AshShifa_Patients_Report.csv");
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            showToast("CSV report downloaded successfully");
+        }
+
+        // INITIALIZATION
+        window.onload = function () {
+            // Live clock ticker
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('liveTime').innerText = now.toLocaleTimeString();
+            }, 1000);
+
+            // Render all initial table data
+            renderPatientsTable();
+            renderAppointmentsTable();
+            renderTestCatalogueTable();
+            renderReportsTable();
+            renderBillingTable();
+            renderInventoryTable();
+            renderRolesAndPermissions();
+
+            // Initialize Chart.js Overview
+            const ctx1 = document.getElementById('overviewChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [
+                        {
+                            label: 'Daily Test Volume',
+                            data: [42, 58, 65, 48, 72, 85, 48],
+                            backgroundColor: '#0d9488',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Avg Turnaround (min)',
+                            data: [35, 30, 28, 40, 25, 22, 30],
+                            backgroundColor: '#cbd5e1',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Initialize Analytics Doughnut Chart
+            const ctx2 = document.getElementById('analyticsDoughnutChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hematology', 'Biochemistry', 'Serology', 'Endocrinology', 'Radiology'],
+                    datasets: [{
+                        data: [35, 25, 18, 14, 8],
+                        backgroundColor: ['#0d9488', '#6366f1', '#f59e0b', '#ec4899', '#64748b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right' } }
+                }
+            });
+        };
+    </script>
+
+    <!-- Copy/paste restrictions: client-side deterrent only -->
+    <script>
+        (function () {
+            const blockedShortcuts = new Set(["c", "x", "v", "a", "u", "s", "p"]);
+
+            document.addEventListener("copy", function (event) {
+                event.preventDefault();
+            });
+
+            document.addEventListener("cut", function (event) {
+                event.preventDefault();
+            });
+
+            document.addEventListener("paste", function (event) {
+                event.preventDefault();
+            });
+
+            document.addEventListener("contextmenu", function (event) {
+                event.preventDefault();
+            });
+
+            document.addEventListener("dragstart", function (event) {
+                event.preventDefault();
+            });
+
+            document.addEventListener("keydown", function (event) {
+                if ((event.ctrlKey || event.metaKey) && blockedShortcuts.has(event.key.toLowerCase())) {
+                    event.preventDefault();
+                }
+            });
+
+            document.addEventListener("selectstart", function (event) {
+                if (!event.target.closest("input, textarea, select, [contenteditable='true']")) {
+                    event.preventDefault();
+                }
+            });
+        })();
+    </script>
+
+
+    <!-- Added UI preferences: BN/EN language + visual themes; existing app logic remains untouched -->
+    <style id="msi-preferences-styles">
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap');
+      body.bn-language, body.bn-language button, body.bn-language input, body.bn-language select, body.bn-language textarea { font-family:'Noto Sans Bengali','Inter',sans-serif !important; }
+      #msi-preferences { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+      #msi-preferences button, #msi-preferences select { font-size:11px; font-weight:800; border:1px solid #cbd5e1; border-radius:9px; padding:7px 9px; background:#fff; color:#334155; cursor:pointer; }
+      #msi-preferences button[aria-pressed="true"] { background:#0f766e; color:#fff; border-color:#0f766e; }
+      body[data-msi-theme="dark"] { --msi-bg:#0b1220; --msi-surface:#111c2f; --msi-surface-raised:#172338; --msi-border:#2a3a52; --msi-text:#e6edf7; --msi-muted:#a9b8cc; --msi-accent:#2dd4bf; --msi-accent-soft:#123b42; background:var(--msi-bg) !important; color:var(--msi-text) !important; color-scheme:dark; }
+      body[data-msi-theme="dark"] header, body[data-msi-theme="dark"] main, body[data-msi-theme="dark"] main .bg-white, body[data-msi-theme="dark"] main .bg-slate-50, body[data-msi-theme="dark"] main .bg-gray-50 { background-color:var(--msi-surface) !important; color:var(--msi-text) !important; }
+      body[data-msi-theme="dark"] main .text-slate-900, body[data-msi-theme="dark"] main .text-slate-800, body[data-msi-theme="dark"] main .text-slate-700, body[data-msi-theme="dark"] main .text-slate-600, body[data-msi-theme="dark"] main .text-gray-900, body[data-msi-theme="dark"] main .text-gray-700, body[data-msi-theme="dark"] main .text-gray-600 { color:var(--msi-text) !important; }
+      body[data-msi-theme="dark"] main .text-slate-500, body[data-msi-theme="dark"] main .text-gray-500, body[data-msi-theme="dark"] main .text-slate-400 { color:var(--msi-muted) !important; }
+      body[data-msi-theme="dark"] main .border-slate-100, body[data-msi-theme="dark"] main .border-slate-200, body[data-msi-theme="dark"] main .border-gray-100, body[data-msi-theme="dark"] main .border-gray-200, body[data-msi-theme="dark"] header { border-color:var(--msi-border) !important; }
+      body[data-msi-theme="dark"] main input, body[data-msi-theme="dark"] main select, body[data-msi-theme="dark"] main textarea { background-color:#0d1728 !important; color:var(--msi-text) !important; border-color:var(--msi-border) !important; }
+      body[data-msi-theme="dark"] main table thead, body[data-msi-theme="dark"] main .bg-slate-100 { background-color:var(--msi-surface-raised) !important; }
+      body[data-msi-theme="dark"] main button.bg-teal-600, body[data-msi-theme="dark"] main .bg-teal-600 { background-color:#0f766e !important; color:#f0fdfa !important; }
+      body[data-msi-theme="dark"] main .bg-teal-50 { background-color:var(--msi-accent-soft) !important; }
+      body[data-msi-theme="dark"] main .text-teal-600, body[data-msi-theme="dark"] main .text-teal-700 { color:var(--msi-accent) !important; }
+      body[data-msi-theme="dark"] main .shadow, body[data-msi-theme="dark"] main .shadow-sm, body[data-msi-theme="dark"] main .shadow-md { box-shadow:0 8px 24px rgba(0,0,0,.22) !important; }
+      /* Accessibility palettes: only affect presentation; app workflows stay unchanged. */
+      #msi-preferences { position:relative; }
+      #msi-palette-panel { position:absolute; top:calc(100% + 10px); right:0; width:min(350px,calc(100vw - 24px)); padding:14px; border:1px solid #d8e0eb; border-radius:14px; background:#fff; color:#172033; box-shadow:0 18px 45px rgba(15,23,42,.22); z-index:100; }
+      #msi-palette-panel[hidden] { display:none !important; }
+      #msi-palette-panel .msi-palette-heading { font-size:13px; font-weight:800; letter-spacing:.03em; margin:0 0 4px; }
+      #msi-palette-panel .msi-palette-subtitle { font-size:11px; color:#64748b; margin:0 0 10px; }
+      #msi-palette-panel .msi-palette-options { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+      #msi-palette-panel .msi-palette-choice { display:flex; flex-direction:column; align-items:flex-start; gap:7px; text-align:left; padding:9px !important; min-width:0; border:1px solid #dbe2ea !important; border-radius:11px !important; background:#f8fafc !important; color:#172033 !important; font-size:11px !important; font-weight:700 !important; }
+      #msi-palette-panel .msi-palette-choice[aria-pressed="true"] { outline:2px solid #0f766e; outline-offset:1px; border-color:#0f766e !important; background:#f0fdfa !important; color:#134e4a !important; }
+      .msi-palette-swatches { display:flex; gap:4px; width:100%; height:24px; }
+      .msi-palette-swatches span { flex:1; border-radius:5px; border:1px solid rgba(100,116,139,.2); }
+      body[data-msi-theme="tritanopia"] { --msi-bg:#f7f8f5; --msi-surface:#ffffff; --msi-surface-raised:#eef1e9; --msi-border:#c9d1c4; --msi-text:#202a24; --msi-muted:#536259; --msi-accent:#a33b25; --msi-accent-soft:#f9e5de; background:var(--msi-bg) !important; color:var(--msi-text) !important; color-scheme:light; }
+      body[data-msi-theme="deuteranopia"] { --msi-bg:#f3f7fb; --msi-surface:#ffffff; --msi-surface-raised:#e7eff8; --msi-border:#b9cce0; --msi-text:#17283b; --msi-muted:#4a6075; --msi-accent:#185da8; --msi-accent-soft:#deebfa; background:var(--msi-bg) !important; color:var(--msi-text) !important; color-scheme:light; }
+      body[data-msi-theme="tritanopia"] main, body[data-msi-theme="tritanopia"] header, body[data-msi-theme="tritanopia"] main .bg-white, body[data-msi-theme="tritanopia"] main .bg-slate-50, body[data-msi-theme="tritanopia"] main .bg-gray-50 { background-color:var(--msi-surface) !important; color:var(--msi-text) !important; }
+      body[data-msi-theme="deuteranopia"] main, body[data-msi-theme="deuteranopia"] header, body[data-msi-theme="deuteranopia"] main .bg-white, body[data-msi-theme="deuteranopia"] main .bg-slate-50, body[data-msi-theme="deuteranopia"] main .bg-gray-50 { background-color:var(--msi-surface) !important; color:var(--msi-text) !important; }
+      body[data-msi-theme="tritanopia"] main .text-slate-900, body[data-msi-theme="tritanopia"] main .text-slate-800, body[data-msi-theme="tritanopia"] main .text-slate-700, body[data-msi-theme="tritanopia"] main .text-slate-600, body[data-msi-theme="tritanopia"] main .text-gray-900, body[data-msi-theme="tritanopia"] main .text-gray-700, body[data-msi-theme="tritanopia"] main .text-gray-600, body[data-msi-theme="deuteranopia"] main .text-slate-900, body[data-msi-theme="deuteranopia"] main .text-slate-800, body[data-msi-theme="deuteranopia"] main .text-slate-700, body[data-msi-theme="deuteranopia"] main .text-slate-600, body[data-msi-theme="deuteranopia"] main .text-gray-900, body[data-msi-theme="deuteranopia"] main .text-gray-700, body[data-msi-theme="deuteranopia"] main .text-gray-600 { color:var(--msi-text) !important; }
+      body[data-msi-theme="tritanopia"] main .text-slate-500, body[data-msi-theme="tritanopia"] main .text-gray-500, body[data-msi-theme="tritanopia"] main .text-slate-400, body[data-msi-theme="deuteranopia"] main .text-slate-500, body[data-msi-theme="deuteranopia"] main .text-gray-500, body[data-msi-theme="deuteranopia"] main .text-slate-400 { color:var(--msi-muted) !important; }
+      body[data-msi-theme="tritanopia"] main .border-slate-100, body[data-msi-theme="tritanopia"] main .border-slate-200, body[data-msi-theme="tritanopia"] main .border-gray-100, body[data-msi-theme="tritanopia"] main .border-gray-200, body[data-msi-theme="deuteranopia"] main .border-slate-100, body[data-msi-theme="deuteranopia"] main .border-slate-200, body[data-msi-theme="deuteranopia"] main .border-gray-100, body[data-msi-theme="deuteranopia"] main .border-gray-200, body[data-msi-theme="tritanopia"] header, body[data-msi-theme="deuteranopia"] header { border-color:var(--msi-border) !important; }
+      body[data-msi-theme="tritanopia"] main input, body[data-msi-theme="tritanopia"] main select, body[data-msi-theme="tritanopia"] main textarea, body[data-msi-theme="deuteranopia"] main input, body[data-msi-theme="deuteranopia"] main select, body[data-msi-theme="deuteranopia"] main textarea { background-color:var(--msi-surface) !important; color:var(--msi-text) !important; border-color:var(--msi-border) !important; }
+      body[data-msi-theme="tritanopia"] .bg-teal-500, body[data-msi-theme="tritanopia"] .bg-teal-600, body[data-msi-theme="tritanopia"] .bg-teal-700 { background-color:#a33b25 !important; color:#fff !important; }
+      body[data-msi-theme="tritanopia"] .text-teal-400, body[data-msi-theme="tritanopia"] .text-teal-500, body[data-msi-theme="tritanopia"] .text-teal-600, body[data-msi-theme="tritanopia"] .text-teal-700 { color:#a33b25 !important; }
+      body[data-msi-theme="tritanopia"] .border-teal-500 { border-color:#a33b25 !important; }
+      body[data-msi-theme="deuteranopia"] .bg-teal-500, body[data-msi-theme="deuteranopia"] .bg-teal-600, body[data-msi-theme="deuteranopia"] .bg-teal-700 { background-color:#185da8 !important; color:#fff !important; }
+      body[data-msi-theme="deuteranopia"] .text-teal-400, body[data-msi-theme="deuteranopia"] .text-teal-500, body[data-msi-theme="deuteranopia"] .text-teal-600, body[data-msi-theme="deuteranopia"] .text-teal-700 { color:#185da8 !important; }
+      body[data-msi-theme="deuteranopia"] .border-teal-500 { border-color:#185da8 !important; }
+      body[data-msi-theme="deuteranopia"] .text-green-500, body[data-msi-theme="deuteranopia"] .text-green-600, body[data-msi-theme="deuteranopia"] .text-green-700 { color:#185da8 !important; }
+      body[data-msi-theme="deuteranopia"] .bg-green-50, body[data-msi-theme="deuteranopia"] .bg-emerald-50 { background-color:#deebfa !important; }
+      body[data-msi-theme="deuteranopia"] .bg-green-500, body[data-msi-theme="deuteranopia"] .bg-green-600, body[data-msi-theme="deuteranopia"] .bg-emerald-500, body[data-msi-theme="deuteranopia"] .bg-emerald-600 { background-color:#185da8 !important; color:#fff !important; }
+      body[data-msi-theme="deuteranopia"] .text-red-500, body[data-msi-theme="deuteranopia"] .text-red-600, body[data-msi-theme="deuteranopia"] .text-red-700 { color:#b45309 !important; }
+      body[data-msi-theme="deuteranopia"] .bg-red-50 { background-color:#fff0d9 !important; }
+      body[data-msi-theme="deuteranopia"] .bg-red-500, body[data-msi-theme="deuteranopia"] .bg-red-600 { background-color:#b45309 !important; color:#fff !important; }
+      body[data-msi-theme="tritanopia"] .bg-green-500, body[data-msi-theme="tritanopia"] .bg-green-600, body[data-msi-theme="tritanopia"] .bg-emerald-500, body[data-msi-theme="tritanopia"] .bg-emerald-600 { background-color:#26734d !important; color:#fff !important; }
+      @media(max-width:760px) { #msi-preferences { gap:4px; } #msi-preferences button,#msi-preferences select { padding:6px; } #msi-palette-panel { right:-2px; } }
+    </style>
+    <script id="msi-bilingual-theme-engine">
+    (function(){
+      const translations = {
+        'Dashboard':'ড্যাশবোর্ড','Dashboard Overview':'ড্যাশবোর্ডের সারসংক্ষেপ','Patients':'রোগী','Appointments':'অ্যাপয়েন্টমেন্ট','Tests & Lab Work':'পরীক্ষা ও ল্যাব কার্যক্রম','Reports & Delivery':'রিপোর্ট ও সরবরাহ','Billing & Invoices':'বিলিং ও ইনভয়েস','Reagents & Inventory':'রিএজেন্ট ও মজুত','Analytics & Reports':'বিশ্লেষণ ও রিপোর্ট','Roles & Permissions':'ভূমিকা ও অনুমতি','Center Settings':'সেন্টার সেটিংস','Diagnostic Centre':'ডায়াগনস্টিক সেন্টার','New Patient':'নতুন রোগী','Appointment':'অ্যাপয়েন্টমেন্ট','Quick Bill':'দ্রুত বিল','Today\'s Patients':'আজকের রোগী','Pending Test Reports':'অপেক্ষমাণ পরীক্ষার রিপোর্ট','Tests Completed':'সম্পন্ন পরীক্ষা','Today\'s Revenue':'আজকের আয়','View Directory':'রোগীর তালিকা দেখুন','Process Reports':'রিপোর্ট প্রক্রিয়া করুন','Lab Workstation':'ল্যাব ওয়ার্কস্টেশন','Medical Director':'মেডিকেল পরিচালক','Email / Username *':'ইমেইল / ব্যবহারকারীর নাম *','Assign Role *':'ভূমিকা নির্ধারণ *','Temporary Password *':'অস্থায়ী পাসওয়ার্ড *','Cancel':'বাতিল','Create Account':'অ্যাকাউন্ট তৈরি করুন','Search':'অনুসন্ধান','Search patients...':'রোগী খুঁজুন...','Name':'নাম','Patient Name':'রোগীর নাম','Age':'বয়স','Gender':'লিঙ্গ','Phone':'ফোন','Date':'তারিখ','Status':'অবস্থা','Actions':'কার্যক্রম','Action':'কার্যক্রম','Save':'সংরক্ষণ','Save Changes':'পরিবর্তন সংরক্ষণ','Update':'আপডেট','Edit':'সম্পাদনা','Delete':'মুছুন','View':'দেখুন','Add':'যোগ করুন','Add Patient':'রোগী যোগ করুন','Patient ID':'রোগী আইডি','Test':'পরীক্ষা','Tests':'পরীক্ষাসমূহ','Department':'বিভাগ','Price':'মূল্য','Total':'মোট','Subtotal':'উপমোট','Discount':'ছাড়','Net Amount':'নিট পরিমাণ','Payment Method':'পেমেন্ট পদ্ধতি','Cash':'নগদ','Paid':'পরিশোধিত','Pending':'অপেক্ষমাণ','Completed':'সম্পন্ন','Approved':'অনুমোদিত','Scheduled':'নির্ধারিত','In Progress':'চলমান','Settings':'সেটিংস','Logout':'লগআউট','Login':'লগইন','Welcome':'স্বাগতম','Dashboard Overview':'ড্যাশবোর্ডের সারসংক্ষেপ','Overview':'সারসংক্ষেপ','Quick Actions':'দ্রুত কার্যক্রম','Recent Activity':'সাম্প্রতিক কার্যক্রম','Patient Details':'রোগীর বিবরণ','Appointment Details':'অ্যাপয়েন্টমেন্টের বিবরণ','Test Catalogue':'পরীক্ষার তালিকা','Reports':'রিপোর্ট','Inventory':'মজুত','Revenue':'আয়','Total Patients':'মোট রোগী','This Month':'এই মাস','This Week':'এই সপ্তাহ','Today':'আজ','All':'সব','Filter':'ফিল্টার','Export':'এক্সপোর্ট','Print':'প্রিন্ট','Download':'ডাউনলোড','Close':'বন্ধ করুন','Submit':'জমা দিন','Confirm':'নিশ্চিত করুন','Reset':'রিসেট','Refresh':'রিফ্রেশ','No data available':'কোনো তথ্য নেই','Select':'নির্বাচন করুন','Select Date':'তারিখ নির্বাচন করুন','Notes':'নোট','Address':'ঠিকানা','Email':'ইমেইল','Username':'ব্যবহারকারীর নাম','Password':'পাসওয়ার্ড','Role':'ভূমিকা','Branch':'শাখা','Quantity':'পরিমাণ','Category':'ক্যাটাগরি','Description':'বিবরণ','Reference':'রেফারেন্স','Invoice':'ইনভয়েস','Invoice Number':'ইনভয়েস নম্বর','Payment':'পেমেন্ট','Patient':'রোগী','Doctor':'চিকিৎসক','Test Name':'পরীক্ষার নাম','Report Status':'রিপোর্টের অবস্থা','Results':'ফলাফল','Remarks':'মন্তব্য','Normal':'স্বাভাবিক','Female':'নারী','Male':'পুরুষ','Other':'অন্যান্য','New':'নতুন','Available':'উপলব্ধ','Low Stock':'স্বল্প মজুত','Adequate':'পর্যাপ্ত','Expired':'মেয়াদোত্তীর্ণ','Reagents & Chemicals':'রিএজেন্ট ও রাসায়নিক','Specimen Tubes & Vials':'নমুনা সংগ্রহের টিউব ও ভায়াল','Hematology':'হেমাটোলজি','Biochemistry':'বায়োকেমিস্ট্রি','Serology / Virology':'সেরোলজি / ভাইরোলজি','Endocrinology':'এন্ডোক্রাইনোলজি','Radiology & Imaging':'রেডিওলজি ও ইমেজিং','Language':'ভাষা','Theme':'থিম','Texture':'টেক্সচার','Light':'লাইট','Dark':'ডার্ক','None':'কোনোটি নয়','Grid':'গ্রিড','Dots':'ডটস'
+      };
+      const originals = new WeakMap();
+      let language = localStorage.getItem('msi-language') || 'EN';
+      let theme = ['light','dark','tritanopia','deuteranopia'].includes(localStorage.getItem('msi-theme')) ? localStorage.getItem('msi-theme') : 'light';
+      const themeNames = {light:'☀ Light',dark:'☾ Dark',tritanopia:'◉ Tritanopia',deuteranopia:'◉ Deuteranopia'};
+      const themeOrder = ['light','dark','tritanopia','deuteranopia'];
+      function translateTree(root){
+        const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+        const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+        nodes.forEach(node=>{
+          if(!originals.has(node)) originals.set(node,node.nodeValue);
+          const original=originals.get(node), trimmed=original.trim();
+          if(!trimmed || node.parentElement?.closest('#msi-preferences,script,style')) return;
+          const replacement=language==='BN' ? (translations[trimmed] || trimmed) : trimmed;
+          if(replacement!==trimmed || language==='EN') node.nodeValue=original.replace(trimmed,replacement);
+        });
+        if(root.querySelectorAll) root.querySelectorAll('input[placeholder],textarea[placeholder],button[title],input[aria-label]').forEach(el=>{
+          ['placeholder','title','aria-label'].forEach(attr=>{const val=el.getAttribute(attr); if(!val)return; if(!el.dataset['orig'+attr]) el.dataset['orig'+attr]=val; const originalVal=el.dataset['orig'+attr]; el.setAttribute(attr,language==='BN'?(translations[originalVal]||originalVal):originalVal);});
+        });
+      }
+      function applyLanguage(next){language=next; localStorage.setItem('msi-language',language); document.documentElement.lang=language==='BN'?'bn':'en'; document.body.classList.toggle('bn-language',language==='BN'); document.body.classList.toggle('en-language',language==='EN'); document.querySelectorAll('#msi-preferences [data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===language))); document.querySelectorAll('#msi-palette-panel [data-en][data-bn]').forEach(el=>{el.textContent=language==='BN'?el.dataset.bn:el.dataset.en;}); translateTree(document.body);}
+      function applyTheme(next){
+        theme=next; localStorage.setItem('msi-theme',theme); document.body.dataset.msiTheme=theme;
+        const button=document.querySelector('#msi-theme-button');
+        if(button){button.textContent=themeNames[theme]||themeNames.light; button.setAttribute('aria-label','Selected palette: '+(themeNames[theme]||themeNames.light)+'. Open palette choices'); button.title='Open accessibility color palettes';}
+        document.querySelectorAll('#msi-palette-panel [data-theme-choice]').forEach(option=>option.setAttribute('aria-pressed',String(option.dataset.themeChoice===theme)));
+      }
+      function mount(){
+        const header=document.querySelector('header'); if(!header)return;
+        const controls=document.createElement('div'); controls.id='msi-preferences'; controls.innerHTML='<div class="flex gap-1" aria-label="Language"><button type="button" data-lang="BN" aria-pressed="false" title="বাংলা">BN</button><button type="button" data-lang="EN" aria-pressed="false" title="English">EN</button></div><button type="button" id="msi-theme-button" aria-label="Open palette choices" title="Open accessibility color palettes" aria-haspopup="dialog" aria-expanded="false">☀ Light</button><div id="msi-palette-panel" role="dialog" aria-label="Accessibility color palettes" hidden><p class="msi-palette-heading" data-en="ACCESSIBILITY COLOR PALETTES" data-bn="অ্যাক্সেসিবিলিটি রঙের প্যালেট">ACCESSIBILITY COLOR PALETTES</p><p class="msi-palette-subtitle" data-en="Choose and apply a palette" data-bn="একটি প্যালেট বেছে নিন">Choose and apply a palette</p><div class="msi-palette-options"><button type="button" class="msi-palette-choice" data-theme-choice="light" aria-pressed="false"><span class="msi-palette-swatches"><span style="background:#f8fafc"></span><span style="background:#ffffff"></span><span style="background:#0f766e"></span></span><span data-en="Light (Original)" data-bn="লাইট (মূল)">Light (Original)</span></button><button type="button" class="msi-palette-choice" data-theme-choice="dark" aria-pressed="false"><span class="msi-palette-swatches"><span style="background:#0b1220"></span><span style="background:#172338"></span><span style="background:#2dd4bf"></span></span><span data-en="Dark Mode (Refined)" data-bn="ডার্ক মোড (উন্নত)">Dark Mode (Refined)</span></button><button type="button" class="msi-palette-choice" data-theme-choice="tritanopia" aria-pressed="false"><span class="msi-palette-swatches"><span style="background:#f7f8f5"></span><span style="background:#a33b25"></span><span style="background:#26734d"></span></span><span data-en="Tritanopia Safe" data-bn="ট্রাইটানোপিয়া উপযোগী">Tritanopia Safe</span></button><button type="button" class="msi-palette-choice" data-theme-choice="deuteranopia" aria-pressed="false"><span class="msi-palette-swatches"><span style="background:#f3f7fb"></span><span style="background:#185da8"></span><span style="background:#b45309"></span></span><span data-en="Deuteranopia Safe" data-bn="ডিউটেরানোপিয়া উপযোগী">Deuteranopia Safe</span></button></div></div>';
+        const actions=header.querySelector('.flex.items-center.space-x-3'); if(actions) actions.prepend(controls); else header.appendChild(controls);
+        controls.querySelectorAll('[data-lang]').forEach(btn=>btn.addEventListener('click',()=>applyLanguage(btn.dataset.lang)));
+        const themeButton=controls.querySelector('#msi-theme-button');
+        const palettePanel=controls.querySelector('#msi-palette-panel');
+        themeButton.addEventListener('click',()=>{const isOpen=!palettePanel.hidden; palettePanel.hidden=isOpen; themeButton.setAttribute('aria-expanded',String(!isOpen));});
+        controls.querySelectorAll('[data-theme-choice]').forEach(option=>option.addEventListener('click',()=>{applyTheme(option.dataset.themeChoice); palettePanel.hidden=true; themeButton.setAttribute('aria-expanded','false');}));
+        document.addEventListener('click',event=>{if(!controls.contains(event.target)){palettePanel.hidden=true;themeButton.setAttribute('aria-expanded','false');}});
+        document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!palettePanel.hidden){palettePanel.hidden=true;themeButton.setAttribute('aria-expanded','false');themeButton.focus();}});
+        applyTheme(theme); applyLanguage(language);
+        const observer=new MutationObserver(records=>{if(language!=='BN')return; records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType===Node.TEXT_NODE){translateTree(node.parentElement||document.body);}else if(node.nodeType===Node.ELEMENT_NODE && !node.closest('#msi-preferences')) translateTree(node);}));});
+        observer.observe(document.body,{childList:true,subtree:true});
+      }
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mount,{once:true}); else mount();
+    })();
+    </script>
+
+
+    <script id="msi-breadcrumb-language-sync">
+      // Refresh breadcrumb labels when BN/EN is changed by the existing language switcher.
+      document.addEventListener('click', function (event) {
+        const control = event.target.closest('#msi-preferences button, #msi-preferences select');
+        if (!control) return;
+        window.setTimeout(function () {
+          const active = document.querySelector('.nav-item.bg-slate-800');
+          if (active && active.id && active.id.startsWith('nav-') && typeof window.switchTab === 'function') {
+            window.switchTab(active.id.slice(4));
+          } else {
+            const home = document.querySelector('[data-breadcrumb-home]');
+            if (home) home.textContent = document.body.classList.contains('bn-language') ? 'হোম' : 'Home';
+          }
+        }, 0);
+      });
+    </script>
+</body>
+</html>
